@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1EGIT Gaming - Team Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #313338;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #2b2d31;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 140px;
+            height: auto;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .input-section {
+            background: #232428;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #b5bac1;
+            font-size: 0.875em;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .add-player-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.name-group {
+            flex: 2;
+            min-width: 180px;
+        }
+
+        .form-group.rank-group {
+            flex: 1.5;
+            min-width: 160px;
+        }
+
+        .form-group label {
+            font-size: 0.75em;
+            margin-bottom: 0;
+        }
+
+        input[type="text"] {
+            padding: 10px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            background: #1e1f22;
+            color: #dbdee1;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #5865f2;
+        }
+
+        input[type="text"]::placeholder {
+            color: #6d6f78;
+        }
+
+        select {
+            padding: 10px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #1e1f22;
+            color: #dbdee1;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #5865f2;
+        }
+
+        .btn-add {
+            padding: 10px 20px;
+            background: #5865f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            height: 40px;
+        }
+
+        .btn-add:hover {
+            background: #4752c4;
+        }
+
+        .players-list {
+            margin-top: 20px;
+            margin-bottom: 16px;
+        }
+
+        .players-list h3 {
+            color: #ffffff;
+            margin-bottom: 12px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        #playersContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 8px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 8px;
+            background: #1e1f22;
+            border-radius: 4px;
+        }
+
+        #playersContainer::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #playersContainer::-webkit-scrollbar-track {
+            background: #1e1f22;
+            border-radius: 4px;
+        }
+
+        #playersContainer::-webkit-scrollbar-thumb {
+            background: #404249;
+            border-radius: 4px;
+        }
+
+        #playersContainer::-webkit-scrollbar-thumb:hover {
+            background: #4e5058;
+        }
+
+        .player-card {
+            background: #2b2d31;
+            padding: 10px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .player-card:hover {
+            background: #35373c;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .player-name {
+            color: #dbdee1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .rank-select-inline {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rank-select-inline:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #5865f2;
+        }
+
+        /* Silver Ranks */
+        .rank-select-inline.silver,
+        .rank-badge.silver {
+            background: #6d6f78;
+            color: white;
+        }
+
+        /* Gold Nova Ranks */
+        .rank-select-inline.gold,
+        .rank-badge.gold {
+            background: #f0b232;
+            color: #1e1f22;
+        }
+
+        /* Master Guardian Ranks */
+        .rank-select-inline.master,
+        .rank-badge.master {
+            background: #3ba55c;
+            color: white;
+        }
+
+        /* Elite Ranks */
+        .rank-select-inline.elite,
+        .rank-badge.elite {
+            background: #5865f2;
+            color: white;
+        }
+
+        /* Global Elite */
+        .rank-select-inline.global,
+        .rank-badge.global {
+            background: #faa61a;
+            color: #1e1f22;
+        }
+
+        .rank-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: none;
+            color: #ed4245;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            transition: all 0.2s;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-delete:hover {
+            background: rgba(237, 66, 69, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: #6d6f78;
+            font-size: 14px;
+        }
+
+        .settings {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .setting-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            background: #1e1f22;
+            color: #dbdee1;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #5865f2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 140px;
+        }
+
+        .btn-primary {
+            background: #5865f2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4752c4;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #ed4245;
+            border: 1px solid #ed4245;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(237, 66, 69, 0.1);
+        }
+
+        .results {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .results > h2 {
+            color: #ffffff;
+            margin-bottom: 16px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .team {
+            background: #232428;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #5865f2;
+        }
+
+        .team:nth-child(even) {
+            border-left-color: #f0b232;
+        }
+
+        .team h2 {
+            color: #ffffff;
+            margin-bottom: 12px;
+            font-size: 1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .team-power {
+            font-size: 0.85em;
+            color: #b5bac1;
+            background: #1e1f22;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .team ul {
+            list-style: none;
+        }
+
+        .team li {
+            padding: 8px 12px;
+            background: #1e1f22;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #dbdee1;
+            transition: background 0.2s;
+        }
+
+        .team li:hover {
+            background: #2b2d31;
+        }
+
+        .team li:last-child {
+            margin-bottom: 0;
+        }
+
+        .player-number {
+            background: #5865f2;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .team:nth-child(even) .player-number {
+            background: #f0b232;
+            color: #1e1f22;
+        }
+
+        .error {
+            background: rgba(237, 66, 69, 0.1);
+            border-left: 4px solid #ed4245;
+            padding: 12px 16px;
+            margin-top: 12px;
+            border-radius: 4px;
+            color: #ed4245;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .settings {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .add-player-form {
+                flex-direction: column;
+            }
+
+            .form-group {
+                width: 100%;
+            }
+        }
+
+        .copy-btn {
+            background: #5865f2;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #4752c4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/Oozanalp/Team-Creator/main/guncel_1egit%202.png" alt="1EGIT Gaming Logo" class="logo">
+            <h1>Team Creator</h1>
+        </div>
+
+        <div class="input-section">
+            <label>🎮 Add New Player</label>
+            <div class="add-player-form">
+                <div class="form-group name-group">
+                    <label for="playerName">Name</label>
+                    <input type="text" id="playerName" placeholder="Player name...">
+                </div>
+                <div class="form-group rank-group">
+                    <label for="playerRank">CS2 Rank</label>
+                    <select id="playerRank">
+                        <optgroup label="Silver">
+                            <option value="1">Silver I</option>
+                            <option value="2">Silver II</option>
+                            <option value="3">Silver III</option>
+                            <option value="4">Silver IV</option>
+                            <option value="5">Silver Elite</option>
+                            <option value="6">Silver Elite Master</option>
+                        </optgroup>
+                        <optgroup label="Gold Nova">
+                            <option value="7">Gold Nova I</option>
+                            <option value="8">Gold Nova II</option>
+                            <option value="9" selected>Gold Nova III</option>
+                            <option value="10">Gold Nova Master</option>
+                        </optgroup>
+                        <optgroup label="Master Guardian">
+                            <option value="11">Master Guardian I</option>
+                            <option value="12">Master Guardian II</option>
+                            <option value="13">Master Guardian Elite</option>
+                            <option value="14">Distinguished Master Guardian</option>
+                        </optgroup>
+                        <optgroup label="Elite">
+                            <option value="15">Legendary Eagle</option>
+                            <option value="16">Legendary Eagle Master</option>
+                            <option value="17">Supreme Master First Class</option>
+                            <option value="18">Global Elite</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="addPlayer()">+ Add</button>
+            </div>
+
+            <div class="players-list" id="playersList">
+                <h3>📋 Registered Players (<span id="playerCount">0</span>)</h3>
+                <div id="playersContainer"></div>
+            </div>
+
+            <div class="settings">
+                <div class="setting-group">
+                    <label for="teamCount">Number of Teams</label>
+                    <input type="number" id="teamCount" min="2" max="20" value="2">
+                </div>
+                <div class="setting-group">
+                    <label for="playersPerTeam">Players per Team (0 = Auto)</label>
+                    <input type="number" id="playersPerTeam" min="0" max="50" value="0">
+                </div>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="createTeams()">🎲 Create Balanced Teams</button>
+                <button class="btn-secondary" onclick="clearAllPlayers()">🗑️ Clear All Players</button>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <h2>📋 Generated Teams</h2>
+            <div id="teamsContainer"></div>
+            <button class="copy-btn" onclick="copyResults()">📋 Copy Results</button>
+        </div>
+    </div>
+
+    <script>
+        // CS2 Rank data
+        const CS2_RANKS = {
+            1: { name: 'Silver I', short: 'S1', tier: 'silver' },
+            2: { name: 'Silver II', short: 'S2', tier: 'silver' },
+            3: { name: 'Silver III', short: 'S3', tier: 'silver' },
+            4: { name: 'Silver IV', short: 'S4', tier: 'silver' },
+            5: { name: 'Silver Elite', short: 'SE', tier: 'silver' },
+            6: { name: 'Silver Elite Master', short: 'SEM', tier: 'silver' },
+            7: { name: 'Gold Nova I', short: 'GN1', tier: 'gold' },
+            8: { name: 'Gold Nova II', short: 'GN2', tier: 'gold' },
+            9: { name: 'Gold Nova III', short: 'GN3', tier: 'gold' },
+            10: { name: 'Gold Nova Master', short: 'GNM', tier: 'gold' },
+            11: { name: 'Master Guardian I', short: 'MG1', tier: 'master' },
+            12: { name: 'Master Guardian II', short: 'MG2', tier: 'master' },
+            13: { name: 'Master Guardian Elite', short: 'MGE', tier: 'master' },
+            14: { name: 'Distinguished Master Guardian', short: 'DMG', tier: 'master' },
+            15: { name: 'Legendary Eagle', short: 'LE', tier: 'elite' },
+            16: { name: 'Legendary Eagle Master', short: 'LEM', tier: 'elite' },
+            17: { name: 'Supreme Master First Class', short: 'SMFC', tier: 'elite' },
+            18: { name: 'Global Elite', short: 'GE', tier: 'global' }
+        };
+
+        // Load players from localStorage
+        let players = JSON.parse(localStorage.getItem('players_cs2')) || [];
+
+        // Render players on page load
+        window.onload = function() {
+            renderPlayers();
+        };
+
+        // Add new player
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const rankSelect = document.getElementById('playerRank');
+            
+            const name = nameInput.value.trim();
+            const rank = parseInt(rankSelect.value);
+
+            if (!name) {
+                showError('Please enter a player name!');
+                return;
+            }
+
+            // Check for duplicate name
+            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showError('A player with this name already exists!');
+                return;
+            }
+
+            // Add new player
+            players.push({ name, rank });
+            savePlayersToStorage();
+            renderPlayers();
+
+            // Clear form
+            nameInput.value = '';
+            rankSelect.value = '9';
+            nameInput.focus();
+
+            // Clear error
+            document.getElementById('error').classList.remove('active');
+        }
+
+        // Update player rank
+        function updatePlayerRank(index, newRank) {
+            players[index].rank = parseInt(newRank);
+            savePlayersToStorage();
+            renderPlayers();
+        }
+
+        // Delete player
+        function deletePlayer(index) {
+            if (confirm(`Are you sure you want to delete ${players[index].name}?`)) {
+                players.splice(index, 1);
+                savePlayersToStorage();
+                renderPlayers();
+            }
+        }
+
+        // Clear all players
+        function clearAllPlayers() {
+            if (players.length === 0) {
+                showError('No players to delete!');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete all players? This action cannot be undone!')) {
+                players = [];
+                savePlayersToStorage();
+                renderPlayers();
+                document.getElementById('results').classList.remove('active');
+            }
+        }
+
+        // Save players to localStorage
+        function savePlayersToStorage() {
+            localStorage.setItem('players_cs2', JSON.stringify(players));
+        }
+
+        // Generate rank select options
+        function generateRankOptions(selectedRank) {
+            let options = '';
+            for (let i = 1; i <= 18; i++) {
+                const rank = CS2_RANKS[i];
+                const selected = i === selectedRank ? 'selected' : '';
+                options += `<option value="${i}" ${selected}>${rank.short}</option>`;
+            }
+            return options;
+        }
+
+        // Render players
+        function renderPlayers() {
+            const container = document.getElementById('playersContainer');
+            const countSpan = document.getElementById('playerCount');
+            
+            countSpan.textContent = players.length;
+
+            if (players.length === 0) {
+                container.innerHTML = '<div class="empty-state">No players added yet.</div>';
+                return;
+            }
+
+            // Sort players by rank (highest to lowest)
+            const sortedPlayers = [...players].sort((a, b) => b.rank - a.rank);
+
+            container.innerHTML = sortedPlayers.map((player) => {
+                const originalIndex = players.findIndex(p => p.name === player.name);
+                const rankData = CS2_RANKS[player.rank];
+                
+                return `
+                    <div class="player-card">
+                        <div class="player-info">
+                            <span class="player-name">${player.name}</span>
+                            <select class="rank-select-inline ${rankData.tier}" onchange="updatePlayerRank(${originalIndex}, this.value)">
+                                ${generateRankOptions(player.rank)}
+                            </select>
+                        </div>
+                        <button class="btn-delete" onclick="deletePlayer(${originalIndex})" title="Delete">✕</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Create balanced teams
+        function createTeams() {
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('active');
+            errorDiv.textContent = '';
+
+            if (players.length === 0) {
+                showError('Please add players first!');
+                return;
+            }
+
+            const teamCount = parseInt(document.getElementById('teamCount').value);
+            if (teamCount < 2 || teamCount > players.length) {
+                showError(`Number of teams must be between 2 and ${players.length}!`);
+                return;
+            }
+
+            const playersPerTeam = parseInt(document.getElementById('playersPerTeam').value);
+            if (playersPerTeam > 0 && playersPerTeam * teamCount > players.length) {
+                showError(`${teamCount} teams × ${playersPerTeam} players = ${teamCount * playersPerTeam} players needed, but only ${players.length} available!`);
+                return;
+            }
+
+            // Create balanced teams
+            const teams = balanceTeams(players, teamCount, playersPerTeam);
+            
+            // Display results
+            displayTeams(teams);
+        }
+
+        // Balanced team creation algorithm (snake draft)
+        function balanceTeams(playerList, teamCount, playersPerTeam) {
+            // Sort players by rank (highest to lowest)
+            const sortedPlayers = [...playerList].sort((a, b) => b.rank - a.rank);
+            
+            // Determine number of players to use
+            const totalPlayers = playersPerTeam > 0 ? playersPerTeam * teamCount : playerList.length;
+            const playersToUse = sortedPlayers.slice(0, totalPlayers);
+
+            // Create teams
+            const teams = Array.from({ length: teamCount }, () => ({ players: [], totalPower: 0 }));
+
+            // Snake draft method
+            playersToUse.forEach((player, index) => {
+                const round = Math.floor(index / teamCount);
+                const position = index % teamCount;
+                const teamIndex = round % 2 === 0 ? position : teamCount - 1 - position;
+                
+                teams[teamIndex].players.push(player);
+                teams[teamIndex].totalPower += player.rank;
+            });
+
+            return teams;
+        }
+
+        function displayTeams(teams) {
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+
+            // Calculate average power
+            const avgPower = teams.reduce((sum, team) => sum + team.totalPower, 0) / teams.length;
+
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'team';
+                
+                const teamHeader = document.createElement('h2');
+                const powerDiff = team.totalPower - avgPower;
+                const powerIndicator = powerDiff > 0.5 ? '🔥' : powerDiff < -0.5 ? '❄️' : '⚖️';
+                
+                // Calculate average rank
+                const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
+                const avgRankName = CS2_RANKS[avgRank] ? CS2_RANKS[avgRank].short : '-';
+                
+                teamHeader.innerHTML = `
+                    <span>Team ${index + 1} (${team.players.length} Players)</span>
+                    <span class="team-power">${powerIndicator} Avg: ${avgRankName}</span>
+                `;
+                teamDiv.appendChild(teamHeader);
+
+                const playerList = document.createElement('ul');
+                team.players.forEach((player, playerIndex) => {
+                    const li = document.createElement('li');
+                    const rankData = CS2_RANKS[player.rank];
+                    li.innerHTML = `
+                        <span class="player-number">${playerIndex + 1}</span>
+                        <span>${player.name}</span>
+                        <span class="rank-badge ${rankData.tier}" style="margin-left: auto;">${rankData.short}</span>
+                    `;
+                    playerList.appendChild(li);
+                });
+                teamDiv.appendChild(playerList);
+
+                container.appendChild(teamDiv);
+            });
+
+            document.getElementById('results').classList.add('active');
+            
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '⚠️ ' + message;
+            errorDiv.classList.add('active');
+        }
+
+        function copyResults() {
+            const teams = document.querySelectorAll('.team');
+            let text = '🏆 1EGIT GAMING - BALANCED TEAMS 🏆\n\n';
+            
+            teams.forEach((team) => {
+                const teamName = team.querySelector('h2').textContent;
+                const players = Array.from(team.querySelectorAll('li'));
+                
+                text += `${teamName}\n`;
+                players.forEach((playerLi) => {
+                    const playerText = playerLi.textContent.trim();
+                    text += `  ${playerText}\n`;
+                });
+                text += '\n';
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(() => {
+                alert('Copy failed. Please select and copy manually.');
+            });
+        }
+
+        // Add player with Enter key
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('playerName');
+            
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addPlayer();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
