@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1EGIT Gaming - Team Creator</title>
+    <!-- Firebase SDK - Uncomment when you have Firebase config -->
+     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script> 
+     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script> 
     <style>
         * {
             margin: 0;
@@ -18,13 +21,47 @@
             padding: 20px;
         }
 
-        .container {
-            max-width: 900px;
+        .page-wrapper {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 20px;
+            max-width: 1400px;
             margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .main-container {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: calc(100% - 320px);
+        }
+
+        .container {
             background: #2b2d31 !important;
             border-radius: 8px;
             padding: 32px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+            position: relative;
+        }
+
+        .server-info {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            text-align: right;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .server-info .connect {
+            color: #3ba55c;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .server-info .password {
+            color: #faa61a;
+            font-size: 12px;
+            margin-top: 2px;
         }
 
         .header {
@@ -181,10 +218,6 @@
             border-radius: 4px;
         }
 
-        #playersContainer::-webkit-scrollbar-thumb:hover {
-            background: #4e5058;
-        }
-
         .player-card {
             background: #2b2d31;
             padding: 10px 12px;
@@ -228,40 +261,11 @@
             box-shadow: 0 0 0 2px #5865f2;
         }
 
-        /* Silver Ranks */
-        .rank-select-inline.silver,
-        .rank-badge.silver {
-            background: #6d6f78;
-            color: white;
-        }
-
-        /* Gold Nova Ranks */
-        .rank-select-inline.gold,
-        .rank-badge.gold {
-            background: #f0b232;
-            color: #1e1f22;
-        }
-
-        /* Master Guardian Ranks */
-        .rank-select-inline.master,
-        .rank-badge.master {
-            background: #3ba55c;
-            color: white;
-        }
-
-        /* Elite Ranks */
-        .rank-select-inline.elite,
-        .rank-badge.elite {
-            background: #5865f2;
-            color: white;
-        }
-
-        /* Global Elite */
-        .rank-select-inline.global,
-        .rank-badge.global {
-            background: #faa61a;
-            color: #1e1f22;
-        }
+        .rank-select-inline.silver, .rank-badge.silver { background: #6d6f78; color: white; }
+        .rank-select-inline.gold, .rank-badge.gold { background: #f0b232; color: #1e1f22; }
+        .rank-select-inline.master, .rank-badge.master { background: #3ba55c; color: white; }
+        .rank-select-inline.elite, .rank-badge.elite { background: #5865f2; color: white; }
+        .rank-select-inline.global, .rank-badge.global { background: #faa61a; color: #1e1f22; }
 
         .rank-badge {
             padding: 4px 10px;
@@ -380,16 +384,26 @@
             font-weight: 600;
         }
 
+        .teams-wrapper {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
         .team {
+            flex: 1;
+            min-width: 280px;
             background: #232428;
             padding: 16px;
             border-radius: 8px;
-            margin-bottom: 12px;
-            border-left: 4px solid #5865f2;
         }
 
-        .team:nth-child(even) {
-            border-left-color: #f0b232;
+        .team.terrorists {
+            border-left: 4px solid #f0b232;
+        }
+
+        .team.counter-terrorists {
+            border-left: 4px solid #5865f2;
         }
 
         .team h2 {
@@ -403,15 +417,15 @@
             gap: 8px;
         }
 
+        .team.terrorists h2 { color: #f0b232; }
+        .team.counter-terrorists h2 { color: #5865f2; }
+
         .team-power {
             font-size: 0.85em;
             color: #b5bac1;
             background: #1e1f22;
             padding: 4px 12px;
             border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .team ul {
@@ -428,11 +442,17 @@
             gap: 10px;
             font-size: 14px;
             color: #dbdee1;
-            transition: background 0.2s;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
         .team li:hover {
             background: #2b2d31;
+        }
+
+        .team li.selected-for-swap {
+            background: #5865f2;
+            box-shadow: 0 0 0 2px #ffffff;
         }
 
         .team li:last-child {
@@ -440,7 +460,6 @@
         }
 
         .player-number {
-            background: #5865f2;
             color: white;
             width: 24px;
             height: 24px;
@@ -452,9 +471,22 @@
             font-size: 12px;
         }
 
-        .team:nth-child(even) .player-number {
-            background: #f0b232;
-            color: #1e1f22;
+        .team.terrorists .player-number { background: #f0b232; color: #1e1f22; }
+        .team.counter-terrorists .player-number { background: #5865f2; }
+
+        .swap-info {
+            text-align: center;
+            padding: 12px;
+            background: #1e1f22;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            color: #b5bac1;
+            font-size: 13px;
+        }
+
+        .swap-info.active {
+            background: #5865f2;
+            color: white;
         }
 
         .error {
@@ -472,39 +504,9 @@
             display: block;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 16px;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .settings {
-                flex-direction: column;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-            }
-
-            .add-player-form {
-                flex-direction: column;
-            }
-
-            .form-group {
-                width: 100%;
-            }
-        }
-
         .copy-btn {
-            background: #5865f2;
-            color: white;
+            background: #5865f2 !important;
+            color: white !important;
             padding: 10px 16px;
             border: none;
             border-radius: 4px;
@@ -512,95 +514,376 @@
             margin-top: 12px;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.2s;
         }
 
         .copy-btn:hover {
-            background: #4752c4;
+            background: #4752c4 !important;
+        }
+
+        /* BENCH PANEL - RIGHT SIDE */
+        .bench-panel {
+            width: 300px;
+            flex-shrink: 0;
+            background: #2b2d31;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bench-panel h3 {
+            color: #ffffff;
+            margin-bottom: 16px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .bench-add-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .bench-add-form input {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #1e1f22;
+            color: #dbdee1;
+        }
+
+        .bench-add-form input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #5865f2;
+        }
+
+        .bench-add-form button {
+            padding: 8px 12px;
+            min-width: auto;
+            flex: none;
+        }
+
+        .bench-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bench-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 12px;
+            min-width: auto;
+        }
+
+        .btn-green {
+            background: #3ba55c !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .btn-green:hover {
+            background: #2d8049 !important;
+        }
+
+        .bench-list {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 200px;
+        }
+
+        .bench-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .bench-list::-webkit-scrollbar-track {
+            background: #1e1f22;
+            border-radius: 4px;
+        }
+
+        .bench-list::-webkit-scrollbar-thumb {
+            background: #404249;
+            border-radius: 4px;
+        }
+
+        .bench-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            background: #1e1f22;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+
+        .bench-item:hover {
+            background: #35373c;
+        }
+
+        .bench-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #5865f2;
+        }
+
+        .bench-item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .bench-item-name {
+            color: #dbdee1;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bench-item-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn-bench-remove {
+            background: transparent;
+            color: #ed4245;
+            border: none;
+            padding: 4px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: auto;
+            flex: none;
+        }
+
+        .btn-bench-remove:hover {
+            background: rgba(237, 66, 69, 0.1);
+        }
+
+        .shuffle-info {
+            font-size: 11px;
+            color: #6d6f78;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .selected-count {
+            font-size: 12px;
+            color: #3ba55c;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .page-wrapper {
+                flex-direction: column;
+            }
+            .bench-panel {
+                width: 100%;
+                position: static;
+                max-height: none;
+            }
+            .bench-list {
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            h1 { font-size: 1.5em; }
+            .settings, .button-group, .add-player-form { flex-direction: column; }
+            button, .form-group { width: 100%; }
+            .server-info {
+                position: static;
+                text-align: center;
+                margin-bottom: 16px;
+            }
+            .teams-wrapper {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="https://raw.githubusercontent.com/Oozanalp/Team-Creator/main/guncel_1egit%202.png" alt="1EGIT Gaming Logo" class="logo">
-            <h1>Team Creator</h1>
+    <div class="page-wrapper">
+        <div class="main-container">
+            <div class="container">
+                <div class="server-info">
+                    <div class="connect">Connect 95.173.175.173</div>
+                    <div class="password">Password 3113</div>
+                </div>
+
+                <div class="header">
+                    <img src="https://raw.githubusercontent.com/Oozanalp/Team-Creator/main/guncel_1egit%202.png" alt="1EGIT Gaming Logo" class="logo">
+                    <h1>Team Creator</h1>
+                </div>
+
+                <div class="input-section">
+                    <label>🎮 Add New Player</label>
+                    <div class="add-player-form">
+                        <div class="form-group name-group">
+                            <label for="playerName">Name</label>
+                            <input type="text" id="playerName" placeholder="Player name...">
+                        </div>
+                        <div class="form-group rank-group">
+                            <label for="playerRank">CS2 Rank</label>
+                            <select id="playerRank">
+                                <optgroup label="Silver">
+                                    <option value="1">Silver I</option>
+                                    <option value="2">Silver II</option>
+                                    <option value="3">Silver III</option>
+                                    <option value="4">Silver IV</option>
+                                    <option value="5">Silver Elite</option>
+                                    <option value="6">Silver Elite Master</option>
+                                </optgroup>
+                                <optgroup label="Gold Nova">
+                                    <option value="7">Gold Nova I</option>
+                                    <option value="8">Gold Nova II</option>
+                                    <option value="9" selected>Gold Nova III</option>
+                                    <option value="10">Gold Nova Master</option>
+                                </optgroup>
+                                <optgroup label="Master Guardian">
+                                    <option value="11">Master Guardian I</option>
+                                    <option value="12">Master Guardian II</option>
+                                    <option value="13">Master Guardian Elite</option>
+                                    <option value="14">Distinguished Master Guardian</option>
+                                </optgroup>
+                                <optgroup label="Elite">
+                                    <option value="15">Legendary Eagle</option>
+                                    <option value="16">Legendary Eagle Master</option>
+                                    <option value="17">Supreme Master First Class</option>
+                                    <option value="18">Global Elite</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <button class="btn-add" onclick="addPlayer()">+ Add</button>
+                    </div>
+
+                    <div class="players-list">
+                        <h3>📋 Active Players (<span id="playerCount">0</span>)</h3>
+                        <div id="playersContainer"></div>
+                    </div>
+
+                    <div class="settings">
+                        <div class="setting-group">
+                            <label for="teamCount">Number of Teams</label>
+                            <input type="number" id="teamCount" min="2" max="20" value="2">
+                        </div>
+                        <div class="setting-group">
+                            <label for="playersPerTeam">Players per Team (0 = Auto)</label>
+                            <input type="number" id="playersPerTeam" min="0" max="50" value="5">
+                        </div>
+                    </div>
+
+                    <div class="error" id="error"></div>
+
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="createTeams()">🎲 Create Balanced Teams</button>
+                        <button class="btn-secondary" onclick="clearAllPlayers()">🗑️ Clear Active Players</button>
+                    </div>
+                    <div class="shuffle-info">💡 Press multiple times to shuffle. Click players in teams to swap them.</div>
+                </div>
+
+                <div class="results" id="results">
+                    <h2>📋 Generated Teams</h2>
+                    <div class="swap-info" id="swapInfo">Click a player to select, then click another to swap</div>
+                    <div class="teams-wrapper" id="teamsContainer"></div>
+                    <button class="copy-btn" onclick="copyResults()">📋 Copy Results</button>
+                </div>
+            </div>
         </div>
 
-        <div class="input-section">
-            <label>🎮 Add New Player</label>
-            <div class="add-player-form">
-                <div class="form-group name-group">
-                    <label for="playerName">Name</label>
-                    <input type="text" id="playerName" placeholder="Player name...">
-                </div>
-                <div class="form-group rank-group">
-                    <label for="playerRank">CS2 Rank</label>
-                    <select id="playerRank">
-                        <optgroup label="Silver">
-                            <option value="1">Silver I</option>
-                            <option value="2">Silver II</option>
-                            <option value="3">Silver III</option>
-                            <option value="4">Silver IV</option>
-                            <option value="5">Silver Elite</option>
-                            <option value="6">Silver Elite Master</option>
-                        </optgroup>
-                        <optgroup label="Gold Nova">
-                            <option value="7">Gold Nova I</option>
-                            <option value="8">Gold Nova II</option>
-                            <option value="9" selected>Gold Nova III</option>
-                            <option value="10">Gold Nova Master</option>
-                        </optgroup>
-                        <optgroup label="Master Guardian">
-                            <option value="11">Master Guardian I</option>
-                            <option value="12">Master Guardian II</option>
-                            <option value="13">Master Guardian Elite</option>
-                            <option value="14">Distinguished Master Guardian</option>
-                        </optgroup>
-                        <optgroup label="Elite">
-                            <option value="15">Legendary Eagle</option>
-                            <option value="16">Legendary Eagle Master</option>
-                            <option value="17">Supreme Master First Class</option>
-                            <option value="18">Global Elite</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <button class="btn-add" onclick="addPlayer()">+ Add</button>
+        <!-- BENCH PANEL - RIGHT SIDE -->
+        <div class="bench-panel">
+            <h3>🪑 Bench</h3>
+            <div class="bench-add-form">
+                <input type="text" id="benchName" placeholder="Add to bench...">
+                <button class="btn-add" onclick="addToBench()">+</button>
             </div>
-
-            <div class="players-list" id="playersList">
-                <h3>📋 Registered Players (<span id="playerCount">0</span>)</h3>
-                <div id="playersContainer"></div>
+            <div class="bench-actions">
+                <button class="btn-green" onclick="addSelectedToActive()">Add Selected</button>
+                <button class="btn-secondary" onclick="selectAllBench()">Select All</button>
             </div>
-
-            <div class="settings">
-                <div class="setting-group">
-                    <label for="teamCount">Number of Teams</label>
-                    <input type="number" id="teamCount" min="2" max="20" value="2">
-                </div>
-                <div class="setting-group">
-                    <label for="playersPerTeam">Players per Team (0 = Auto)</label>
-                    <input type="number" id="playersPerTeam" min="0" max="50" value="0">
-                </div>
-            </div>
-
-            <div class="error" id="error"></div>
-
-            <div class="button-group">
-                <button class="btn-primary" onclick="createTeams()">🎲 Create Balanced Teams</button>
-                <button class="btn-secondary" onclick="clearAllPlayers()">🗑️ Clear All Players</button>
-            </div>
-        </div>
-
-        <div class="results" id="results">
-            <h2>📋 Generated Teams</h2>
-            <div id="teamsContainer"></div>
-            <button class="copy-btn" onclick="copyResults()">📋 Copy Results</button>
+            <div class="selected-count" id="selectedCount"></div>
+            <div class="bench-list" id="benchList"></div>
         </div>
     </div>
 
     <script>
-        // CS2 Rank data
+        /*
+        =============================================
+        FIREBASE SETUP GUIDE
+        =============================================
+        
+        1. Go to https://console.firebase.google.com/
+        2. Click "Create a project" or "Add project"
+        3. Enter project name: "team-creator-1egit"
+        4. Disable Google Analytics (not needed)
+        5. Click "Create project"
+        
+        6. In the project dashboard, click "Realtime Database" in left menu
+        7. Click "Create Database"
+        8. Choose location (europe-west1 recommended)
+        9. Start in "Test mode" (allows read/write for 30 days)
+        10. Click "Enable"
+        
+        11. Go to Project Settings (gear icon) > General
+        12. Scroll down to "Your apps" > Click web icon (</>)
+        13. Register app with nickname "team-creator"
+        14. Copy the firebaseConfig object
+        
+        15. Uncomment the Firebase SDK scripts at top of this file
+        16. Replace the firebaseConfig below with your config
+        17. Set useFirebase = true
+        
+        18. IMPORTANT: Update database rules for production:
+            Go to Realtime Database > Rules and set:
+            {
+              "rules": {
+                ".read": true,
+                ".write": true
+              }
+            }
+        
+        =============================================
+        */
+
+        // FIREBASE CONFIG - Replace with your config
+        const firebaseConfig = {
+  apiKey: "AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",
+  authDomain: "legit---team-creator.firebaseapp.com",
+  databaseURL: "https://legit---team-creator-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "legit---team-creator",
+  storageBucket: "legit---team-creator.firebasestorage.app",
+  messagingSenderId: "475101153038",
+  appId: "1:475101153038:web:a6a464384178890d60f95f"
+        };
+
+        // Set to true after configuring Firebase
+        const useFirebase = true;
+        let db = null;
+
+        // Initialize Firebase if enabled
+        if (useFirebase && typeof firebase !== 'undefined') {
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                console.log('Firebase initialized');
+            } catch (e) {
+                console.log('Firebase init error:', e);
+            }
+        }
+
         const CS2_RANKS = {
             1: { name: 'Silver I', short: 'S1', tier: 'silver' },
             2: { name: 'Silver II', short: 'S2', tier: 'silver' },
@@ -622,278 +905,395 @@
             18: { name: 'Global Elite', short: 'GE', tier: 'global' }
         };
 
-        // Load players from localStorage
-        let players = JSON.parse(localStorage.getItem('players_cs2')) || [];
+        let players = [];
+        let bench = [];
+        let currentTeams = [];
+        let shuffleCount = 0;
+        let selectedForSwap = null; // {teamIndex, playerIndex}
 
-        // Render players on page load
+        // Initialize
         window.onload = function() {
-            // Small delay to ensure DOM is fully ready
-            setTimeout(renderPlayers, 0);
+            loadData();
         };
 
-        // Add new player
+        function loadData() {
+            if (useFirebase && db) {
+                db.ref('players').on('value', (snapshot) => {
+                    players = [];
+                    snapshot.forEach((child) => {
+                        players.push({ id: child.key, ...child.val() });
+                    });
+                    renderPlayers();
+                });
+                db.ref('bench').on('value', (snapshot) => {
+                    bench = [];
+                    snapshot.forEach((child) => {
+                        bench.push({ id: child.key, ...child.val() });
+                    });
+                    renderBench();
+                });
+            } else {
+                players = JSON.parse(localStorage.getItem('players_1egit')) || [];
+                bench = JSON.parse(localStorage.getItem('bench_1egit')) || [];
+                renderPlayers();
+                renderBench();
+            }
+        }
+
+        function savePlayers() {
+            if (useFirebase && db) {
+                const obj = {};
+                players.forEach((p, i) => { obj[p.id || i] = { name: p.name, rank: p.rank }; });
+                db.ref('players').set(obj);
+            } else {
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+            }
+        }
+
+        function saveBench() {
+            if (useFirebase && db) {
+                const obj = {};
+                bench.forEach((b, i) => { obj[b.id || i] = { name: b.name, rank: b.rank }; });
+                db.ref('bench').set(obj);
+            } else {
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+            }
+        }
+
         function addPlayer() {
             const nameInput = document.getElementById('playerName');
             const rankSelect = document.getElementById('playerRank');
-            
             const name = nameInput.value.trim();
             const rank = parseInt(rankSelect.value);
 
-            if (!name) {
-                showError('Please enter a player name!');
-                return;
-            }
-
-            // Check for duplicate name
+            if (!name) { showError('Please enter a player name!'); return; }
             if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                showError('A player with this name already exists!');
-                return;
+                showError('This player is already active!'); return;
             }
 
-            // Add new player
-            players.push({ name, rank });
-            savePlayersToStorage();
+            players.push({ name, rank, id: Date.now().toString() });
+            savePlayers();
             renderPlayers();
-
-            // Clear form
             nameInput.value = '';
             rankSelect.value = '9';
             nameInput.focus();
-
-            // Clear error
             document.getElementById('error').classList.remove('active');
         }
 
-        // Update player rank
-        function updatePlayerRank(index, newRank, selectElement) {
-            const rank = parseInt(newRank);
-            players[index].rank = rank;
-            savePlayersToStorage();
+        function addFromBench(index) {
+            const bp = bench[index];
+            if (players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
+                showError('This player is already active!'); return;
+            }
+            players.push({ name: bp.name, rank: bp.rank, id: Date.now().toString() });
+            savePlayers();
+            renderPlayers();
+            renderBench();
+            document.getElementById('error').classList.remove('active');
+        }
+
+        function addSelectedToActive() {
+            const checkboxes = document.querySelectorAll('.bench-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showError('No players selected!'); return;
+            }
             
-            // Update select class for color
-            const tierClass = CS2_RANKS[rank].tier;
-            selectElement.className = 'rank-select-inline ' + tierClass;
+            let added = 0;
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.dataset.index);
+                const bp = bench[idx];
+                if (!players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
+                    players.push({ name: bp.name, rank: bp.rank, id: Date.now().toString() + added });
+                    added++;
+                }
+            });
+            
+            if (added > 0) {
+                savePlayers();
+                renderPlayers();
+                renderBench();
+            }
+            document.getElementById('error').classList.remove('active');
         }
 
-        // Delete player
+        function selectAllBench() {
+            const checkboxes = document.querySelectorAll('.bench-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const count = document.querySelectorAll('.bench-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = count > 0 ? `${count} selected` : '';
+        }
+
+        function updatePlayerRank(index, newRank, selectElement) {
+            players[index].rank = parseInt(newRank);
+            savePlayers();
+            selectElement.className = 'rank-select-inline ' + CS2_RANKS[parseInt(newRank)].tier;
+        }
+
         function deletePlayer(index) {
-            if (confirm(`Are you sure you want to delete ${players[index].name}?`)) {
+            if (confirm(`Remove ${players[index].name}?`)) {
                 players.splice(index, 1);
-                savePlayersToStorage();
+                savePlayers();
                 renderPlayers();
+                renderBench();
             }
         }
 
-        // Clear all players
         function clearAllPlayers() {
-            if (players.length === 0) {
-                showError('No players to delete!');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete all players? This action cannot be undone!')) {
+            if (players.length === 0) { showError('No active players!'); return; }
+            if (confirm('Clear all active players?')) {
                 players = [];
-                savePlayersToStorage();
+                savePlayers();
                 renderPlayers();
+                renderBench();
                 document.getElementById('results').classList.remove('active');
+                shuffleCount = 0;
+                currentTeams = [];
             }
         }
 
-        // Save players to localStorage
-        function savePlayersToStorage() {
-            localStorage.setItem('players_cs2', JSON.stringify(players));
+        function addToBench() {
+            const nameInput = document.getElementById('benchName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            if (bench.some(b => b.name.toLowerCase() === name.toLowerCase())) {
+                showError('Already on bench!'); return;
+            }
+            bench.push({ name, rank: 9, id: Date.now().toString() });
+            saveBench();
+            renderBench();
+            nameInput.value = '';
+            document.getElementById('error').classList.remove('active');
         }
 
-        // Generate rank select options
+        function updateBenchRank(index, newRank, selectElement) {
+            bench[index].rank = parseInt(newRank);
+            saveBench();
+            selectElement.className = 'rank-select-inline ' + CS2_RANKS[parseInt(newRank)].tier;
+        }
+
+        function removeFromBench(index) {
+            bench.splice(index, 1);
+            saveBench();
+            renderBench();
+        }
+
         function generateRankOptions(selectedRank) {
-            let options = '';
-            for (let i = 1; i <= 18; i++) {
-                const rank = CS2_RANKS[i];
-                const selected = i === selectedRank ? 'selected' : '';
-                options += `<option value="${i}" ${selected}>${rank.short}</option>`;
-            }
-            return options;
+            return Array.from({length: 18}, (_, i) => i + 1)
+                .map(i => `<option value="${i}" ${i === selectedRank ? 'selected' : ''}>${CS2_RANKS[i].short}</option>`)
+                .join('');
         }
 
-        // Render players
         function renderPlayers() {
             const container = document.getElementById('playersContainer');
-            const countSpan = document.getElementById('playerCount');
-            
-            countSpan.textContent = players.length;
+            document.getElementById('playerCount').textContent = players.length;
 
             if (players.length === 0) {
-                container.innerHTML = '<div class="empty-state">No players added yet.</div>';
+                container.innerHTML = '<div class="empty-state">No active players. Add from bench or manually.</div>';
                 return;
             }
 
-            // Sort players by rank (highest to lowest)
-            const sortedPlayers = [...players].sort((a, b) => b.rank - a.rank);
-
-            container.innerHTML = sortedPlayers.map((player) => {
-                const originalIndex = players.findIndex(p => p.name === player.name);
-                const rankData = CS2_RANKS[player.rank];
-                
+            const sorted = [...players].sort((a, b) => b.rank - a.rank);
+            container.innerHTML = sorted.map(player => {
+                const idx = players.findIndex(p => p.name === player.name);
+                const rd = CS2_RANKS[player.rank];
                 return `
                     <div class="player-card">
                         <div class="player-info">
                             <span class="player-name">${player.name}</span>
-                            <select class="rank-select-inline ${rankData.tier}" onchange="updatePlayerRank(${originalIndex}, this.value, this)">
+                            <select class="rank-select-inline ${rd.tier}" onchange="updatePlayerRank(${idx}, this.value, this)">
                                 ${generateRankOptions(player.rank)}
                             </select>
                         </div>
-                        <button class="btn-delete" onclick="deletePlayer(${originalIndex})" title="Delete">✕</button>
+                        <button class="btn-delete" onclick="deletePlayer(${idx})">✕</button>
                     </div>
                 `;
             }).join('');
         }
 
-        // Create balanced teams
-        function createTeams() {
-            const errorDiv = document.getElementById('error');
-            errorDiv.classList.remove('active');
-            errorDiv.textContent = '';
+        function renderBench() {
+            const container = document.getElementById('benchList');
 
-            if (players.length === 0) {
-                showError('Please add players first!');
+            if (bench.length === 0) {
+                container.innerHTML = '<div class="empty-state">Bench is empty</div>';
+                document.getElementById('selectedCount').textContent = '';
                 return;
             }
+
+            const sorted = [...bench].sort((a, b) => a.name.localeCompare(b.name));
+            container.innerHTML = sorted.map(player => {
+                const idx = bench.findIndex(b => b.name === player.name);
+                const rd = CS2_RANKS[player.rank];
+                const isActive = players.some(p => p.name.toLowerCase() === player.name.toLowerCase());
+                return `
+                    <div class="bench-item">
+                        <input type="checkbox" class="bench-checkbox" data-index="${idx}" onchange="updateSelectedCount()" ${isActive ? 'disabled' : ''}>
+                        <div class="bench-item-info">
+                            <span class="bench-item-name" ${isActive ? 'style="color:#3ba55c;"' : ''}>${player.name}</span>
+                            <select class="rank-select-inline ${rd.tier}" onchange="updateBenchRank(${idx}, this.value, this)" style="font-size:10px;padding:2px 4px;">
+                                ${generateRankOptions(player.rank)}
+                            </select>
+                        </div>
+                        <div class="bench-item-actions">
+                            <button class="btn-bench-remove" onclick="removeFromBench(${idx})">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            updateSelectedCount();
+        }
+
+        function createTeams() {
+            document.getElementById('error').classList.remove('active');
+            if (players.length === 0) { showError('Please add players first!'); return; }
 
             const teamCount = parseInt(document.getElementById('teamCount').value);
             if (teamCount < 2 || teamCount > players.length) {
-                showError(`Number of teams must be between 2 and ${players.length}!`);
-                return;
+                showError(`Teams must be between 2 and ${players.length}!`); return;
             }
 
-            const playersPerTeam = parseInt(document.getElementById('playersPerTeam').value);
-            if (playersPerTeam > 0 && playersPerTeam * teamCount > players.length) {
-                showError(`${teamCount} teams × ${playersPerTeam} players = ${teamCount * playersPerTeam} players needed, but only ${players.length} available!`);
-                return;
+            const ppt = parseInt(document.getElementById('playersPerTeam').value);
+            if (ppt > 0 && ppt * teamCount > players.length) {
+                showError(`Need ${ppt * teamCount} players but only ${players.length} available!`); return;
             }
 
-            // Create balanced teams
-            const teams = balanceTeams(players, teamCount, playersPerTeam);
-            
-            // Display results
-            displayTeams(teams);
+            shuffleCount++;
+            selectedForSwap = null;
+            currentTeams = balanceTeams(players, teamCount, ppt, shuffleCount);
+            displayTeams();
         }
 
-        // Balanced team creation algorithm (snake draft)
-        function balanceTeams(playerList, teamCount, playersPerTeam) {
-            // Sort players by rank (highest to lowest)
-            const sortedPlayers = [...playerList].sort((a, b) => b.rank - a.rank);
-            
-            // Determine number of players to use
-            const totalPlayers = playersPerTeam > 0 ? playersPerTeam * teamCount : playerList.length;
-            const playersToUse = sortedPlayers.slice(0, totalPlayers);
+        function balanceTeams(playerList, teamCount, playersPerTeam, iteration) {
+            let sorted = [...playerList].sort((a, b) => b.rank - a.rank);
+            const total = playersPerTeam > 0 ? playersPerTeam * teamCount : playerList.length;
+            let toUse = sorted.slice(0, total);
 
-            // Create teams
+            if (iteration > 1) {
+                for (let i = 0; i < toUse.length - 1; i++) {
+                    if (Math.abs(toUse[i].rank - toUse[i + 1].rank) <= 2 && Math.random() < 0.4) {
+                        [toUse[i], toUse[i + 1]] = [toUse[i + 1], toUse[i]];
+                    }
+                }
+            }
+
             const teams = Array.from({ length: teamCount }, () => ({ players: [], totalPower: 0 }));
-
-            // Snake draft method
-            playersToUse.forEach((player, index) => {
+            toUse.forEach((player, index) => {
                 const round = Math.floor(index / teamCount);
-                const position = index % teamCount;
-                const teamIndex = round % 2 === 0 ? position : teamCount - 1 - position;
-                
-                teams[teamIndex].players.push(player);
-                teams[teamIndex].totalPower += player.rank;
+                const pos = index % teamCount;
+                const teamIdx = round % 2 === 0 ? pos : teamCount - 1 - pos;
+                teams[teamIdx].players.push({...player});
+                teams[teamIdx].totalPower += player.rank;
             });
 
             return teams;
         }
 
-        function displayTeams(teams) {
+        function selectPlayerForSwap(teamIndex, playerIndex) {
+            if (selectedForSwap === null) {
+                selectedForSwap = { teamIndex, playerIndex };
+                displayTeams();
+                document.getElementById('swapInfo').textContent = `Selected: ${currentTeams[teamIndex].players[playerIndex].name} - Click another player to swap`;
+                document.getElementById('swapInfo').classList.add('active');
+            } else {
+                if (selectedForSwap.teamIndex === teamIndex && selectedForSwap.playerIndex === playerIndex) {
+                    selectedForSwap = null;
+                    displayTeams();
+                    document.getElementById('swapInfo').textContent = 'Click a player to select, then click another to swap';
+                    document.getElementById('swapInfo').classList.remove('active');
+                    return;
+                }
+
+                // Perform swap
+                const team1 = currentTeams[selectedForSwap.teamIndex];
+                const team2 = currentTeams[teamIndex];
+                const player1 = team1.players[selectedForSwap.playerIndex];
+                const player2 = team2.players[playerIndex];
+
+                team1.players[selectedForSwap.playerIndex] = player2;
+                team2.players[playerIndex] = player1;
+
+                // Recalculate powers
+                team1.totalPower = team1.players.reduce((sum, p) => sum + p.rank, 0);
+                team2.totalPower = team2.players.reduce((sum, p) => sum + p.rank, 0);
+
+                selectedForSwap = null;
+                displayTeams();
+                document.getElementById('swapInfo').textContent = 'Swapped! Click players to swap more';
+                document.getElementById('swapInfo').classList.remove('active');
+            }
+        }
+
+        function displayTeams() {
             const container = document.getElementById('teamsContainer');
             container.innerHTML = '';
 
-            // Calculate average power
-            const avgPower = teams.reduce((sum, team) => sum + team.totalPower, 0) / teams.length;
+            const names = ['Terrorists', 'Counter-Terrorists'];
+            const classes = ['terrorists', 'counter-terrorists'];
 
-            teams.forEach((team, index) => {
-                const teamDiv = document.createElement('div');
-                teamDiv.className = 'team';
+            currentTeams.forEach((team, ti) => {
+                const div = document.createElement('div');
+                div.className = `team ${classes[ti % 2]}`;
                 
-                const teamHeader = document.createElement('h2');
-                const powerDiff = team.totalPower - avgPower;
-                const powerIndicator = powerDiff > 0.5 ? '🔥' : powerDiff < -0.5 ? '❄️' : '⚖️';
-                
-                // Calculate average rank
                 const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
-                const avgRankName = CS2_RANKS[avgRank] ? CS2_RANKS[avgRank].short : '-';
+                const avgName = CS2_RANKS[avgRank] ? CS2_RANKS[avgRank].short : '-';
                 
-                teamHeader.innerHTML = `
-                    <span>Team ${index + 1} (${team.players.length} Players)</span>
-                    <span class="team-power">${powerIndicator} Avg: ${avgRankName}</span>
+                div.innerHTML = `
+                    <h2>
+                        <span>${names[ti % 2]} (${team.players.length})</span>
+                        <span class="team-power">Avg: ${avgName}</span>
+                    </h2>
+                    <ul>
+                        ${team.players.map((p, pi) => {
+                            const rd = CS2_RANKS[p.rank];
+                            const isSelected = selectedForSwap && selectedForSwap.teamIndex === ti && selectedForSwap.playerIndex === pi;
+                            return `<li class="${isSelected ? 'selected-for-swap' : ''}" onclick="selectPlayerForSwap(${ti}, ${pi})">
+                                <span class="player-number">${pi + 1}</span>
+                                <span>${p.name}</span>
+                                <span class="rank-badge ${rd.tier}" style="margin-left:auto;">${rd.short}</span>
+                            </li>`;
+                        }).join('')}
+                    </ul>
                 `;
-                teamDiv.appendChild(teamHeader);
-
-                const playerList = document.createElement('ul');
-                team.players.forEach((player, playerIndex) => {
-                    const li = document.createElement('li');
-                    const rankData = CS2_RANKS[player.rank];
-                    li.innerHTML = `
-                        <span class="player-number">${playerIndex + 1}</span>
-                        <span>${player.name}</span>
-                        <span class="rank-badge ${rankData.tier}" style="margin-left: auto;">${rankData.short}</span>
-                    `;
-                    playerList.appendChild(li);
-                });
-                teamDiv.appendChild(playerList);
-
-                container.appendChild(teamDiv);
+                container.appendChild(div);
             });
 
             document.getElementById('results').classList.add('active');
-            
-            setTimeout(() => {
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
+            setTimeout(() => document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = '⚠️ ' + message;
-            errorDiv.classList.add('active');
+        function showError(msg) {
+            const err = document.getElementById('error');
+            err.textContent = '⚠️ ' + msg;
+            err.classList.add('active');
         }
 
         function copyResults() {
-            const teams = document.querySelectorAll('.team');
             let text = '🏆 1EGIT GAMING - BALANCED TEAMS 🏆\n\n';
+            const names = ['Terrorists', 'Counter-Terrorists'];
             
-            teams.forEach((team) => {
-                const teamName = team.querySelector('h2').textContent;
-                const players = Array.from(team.querySelectorAll('li'));
-                
-                text += `${teamName}\n`;
-                players.forEach((playerLi) => {
-                    const playerText = playerLi.textContent.trim();
-                    text += `  ${playerText}\n`;
+            currentTeams.forEach((team, i) => {
+                const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
+                text += `${names[i % 2]} (${team.players.length}) - Avg: ${CS2_RANKS[avgRank]?.short || '-'}\n`;
+                team.players.forEach((p, j) => {
+                    text += `  ${j + 1}. ${p.name} [${CS2_RANKS[p.rank].short}]\n`;
                 });
                 text += '\n';
             });
 
             navigator.clipboard.writeText(text).then(() => {
                 const btn = event.target;
-                const originalText = btn.textContent;
                 btn.textContent = '✅ Copied!';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                }, 2000);
-            }).catch(() => {
-                alert('Copy failed. Please select and copy manually.');
+                setTimeout(() => btn.textContent = '📋 Copy Results', 2000);
             });
         }
 
-        // Add player with Enter key
-        document.addEventListener('DOMContentLoaded', function() {
-            const nameInput = document.getElementById('playerName');
-            
-            nameInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addPlayer();
-                }
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('playerName').addEventListener('keypress', e => { if (e.key === 'Enter') addPlayer(); });
+            document.getElementById('benchName').addEventListener('keypress', e => { if (e.key === 'Enter') addToBench(); });
         });
     </script>
 </body>
