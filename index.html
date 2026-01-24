@@ -57,6 +57,7 @@
         input[type="text"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
         input[type="text"]::placeholder { color: var(--discord-text-faint); }
         
+        /* Main Rank Selector for Add Player */
         .main-rank-selector {
             position: relative;
             background: var(--discord-darker);
@@ -211,6 +212,7 @@
         .selected-count { font-size: 12px; color: var(--discord-green); margin-bottom: 8px; }
         .rank-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-lighter-gray); color: var(--discord-text); }
         
+        /* ===== RANK DROPDOWN - FIXED POSITION ===== */
         .rank-dropdown-btn {
             display: flex;
             align-items: center;
@@ -228,6 +230,7 @@
         .rank-dropdown-btn:hover { background: var(--discord-lighter-gray); }
         .rank-dropdown-btn img { width: 20px; height: 20px; }
         
+        /* Fixed position dropdown overlay */
         .rank-dropdown-overlay {
             display: none;
             position: fixed;
@@ -314,6 +317,7 @@
             .team { min-width: 100%; }
             .copy-btn { width: 100%; padding: 14px; }
             .bench-panel { padding: 14px; margin-bottom: 10px; }
+            .rank-dropdown-menu { width: 200px; max-height: 350px; }
         }
     </style>
 </head>
@@ -381,40 +385,23 @@
         </div>
     </div>
 
+    <!-- Dropdown Overlay (closes dropdown when clicking outside) -->
     <div class="rank-dropdown-overlay" id="dropdownOverlay" onclick="closeAllDropdowns()"></div>
+    
+    <!-- Global Dropdown Menu (positioned with JS) -->
     <div class="rank-dropdown-menu" id="globalRankMenu"></div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <script>
-        // ============================================================
-        // GÜNCEL CS2 RANK İKONLARI - TEK MERKEZİ KAYNAK
-        // Kaynak: ItzArty/csgo-rank-icons - matchmaking klasörü
-        // Bu obje tüm rank ikonlarının TEK kaynağıdır
-        // ============================================================
-        const RANK_ICONS = {
-            1: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/silver1.png',
-            2: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/silver2.png',
-            3: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/silver3.png',
-            4: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/silver4.png',
-            5: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/silverelite.png',
-            6: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/silverelitemaster.png',
-            7: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/goldnova1.png',
-            8: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/goldnova2.png',
-            9: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/goldnova3.png',
-            10: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/goldnovamaster.png',
-            11: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/masterguardian1.png',
-            12: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/masterguardian2.png',
-            13: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/masterguardianelite.png',
-            14: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/dmg.png',
-            15: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/le.png',
-            16: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/lem.png',
-            17: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/supreme.png',
-            18: 'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/matchmaking/globalelite.png'
-        };
+        // Rank Icons CDN
+        const RANK_ICONS = {};
+        for (let i = 1; i <= 18; i++) {
+            RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/${i}.png`;
+        }
 
-        // Rank bilgileri - TEK kaynak
         const CS2_RANKS = {
             1: {name: 'Silver I', short: 'S1', group: 'Silver'},
             2: {name: 'Silver II', short: 'S2', group: 'Silver'},
@@ -429,10 +416,10 @@
             11: {name: 'Master Guardian I', short: 'MG1', group: 'Master Guardian'},
             12: {name: 'Master Guardian II', short: 'MG2', group: 'Master Guardian'},
             13: {name: 'Master Guardian Elite', short: 'MGE', group: 'Master Guardian'},
-            14: {name: 'Distinguished Master Guardian', short: 'DMG', group: 'Master Guardian'},
+            14: {name: 'DMG', short: 'DMG', group: 'Master Guardian'},
             15: {name: 'Legendary Eagle', short: 'LE', group: 'Elite'},
             16: {name: 'Legendary Eagle Master', short: 'LEM', group: 'Elite'},
-            17: {name: 'Supreme Master First Class', short: 'SMFC', group: 'Elite'},
+            17: {name: 'Supreme', short: 'SMFC', group: 'Elite'},
             18: {name: 'Global Elite', short: 'GE', group: 'Elite'}
         };
 
@@ -442,11 +429,6 @@
             {label: 'Master Guardian', ranks: [11,12,13,14]},
             {label: 'Elite', ranks: [15,16,17,18]}
         ];
-
-        // Yardımcı fonksiyon - ikon URL'si almak için TEK nokta
-        function getRankIcon(rankNumber) {
-            return RANK_ICONS[rankNumber] || RANK_ICONS[1];
-        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",
@@ -466,6 +448,7 @@
         let selectedForSwap = null;
         let currentDropdownCallback = null;
 
+        // Initialize
         window.onload = function() {
             if (typeof firebase !== 'undefined') {
                 try {
@@ -477,6 +460,7 @@
                 }
             }
 
+            // Set initial main rank selector
             setMainRankDisplay(9);
             loadData();
 
@@ -489,7 +473,7 @@
         };
 
         function setMainRankDisplay(rank) {
-            document.getElementById('mainRankIcon').src = getRankIcon(rank);
+            document.getElementById('mainRankIcon').src = RANK_ICONS[rank];
             document.getElementById('mainRankName').textContent = CS2_RANKS[rank].name;
             document.getElementById('playerRank').value = rank;
         }
@@ -504,7 +488,7 @@
                     const isSelected = r === selectedRank;
                     html += `
                         <div class="rank-dropdown-item ${isSelected ? 'selected' : ''}" onclick="${onSelectFn}(${r})">
-                            <img src="${getRankIcon(r)}" alt="${rank.name}">
+                            <img src="${RANK_ICONS[r]}" alt="${rank.name}">
                             <span class="rank-short">${rank.short}</span>
                             <span class="rank-full">${rank.name}</span>
                         </div>
@@ -520,18 +504,24 @@
             const overlay = document.getElementById('dropdownOverlay');
             const rect = btnElement.getBoundingClientRect();
             
+            // Store callback
             currentDropdownCallback = callback;
+            
+            // Build menu
             menu.innerHTML = buildRankMenuHTML(selectedRank, 'handleRankSelect');
             
+            // Position menu
             let top = rect.bottom + 4;
             let left = rect.left;
             
+            // Check if menu would go off screen bottom
             const menuHeight = 400;
             if (top + menuHeight > window.innerHeight) {
                 top = rect.top - menuHeight - 4;
                 if (top < 0) top = 10;
             }
             
+            // Check right edge
             if (left + 220 > window.innerWidth) {
                 left = window.innerWidth - 230;
             }
@@ -745,10 +735,6 @@
             }
         }
 
-        // ============================================================
-        // RENDER FONKSİYONLARI - TÜM İKONLAR getRankIcon() KULLANIR
-        // ============================================================
-
         function renderPlayers() {
             const container = document.getElementById('playersContainer');
             document.getElementById('playerCount').textContent = players.length;
@@ -763,7 +749,7 @@
                 <div class="player-card">
                     <span class="player-name">${p.name}</span>
                     <div class="player-actions">
-                        <img src="${getRankIcon(p.rank)}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
+                        <img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
                         <button class="rank-dropdown-btn" onclick="openPlayerRankDropdown('${p.id}', this, ${p.rank})">
                             <span>${CS2_RANKS[p.rank].short}</span>
                             <span style="font-size:10px;">▼</span>
@@ -790,12 +776,12 @@
                     <div class="bench-item">
                         <input type="checkbox" class="bench-checkbox" data-id="${p.id}" onchange="updateSelectedCount()" ${isActive ? 'disabled' : ''}>
                         <div class="bench-item-info">
-                            <img src="${getRankIcon(p.rank)}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                            <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
                             <span class="bench-item-name" ${isActive ? 'style="color:var(--discord-green);"' : ''}>${p.name}</span>
                         </div>
                         <div class="bench-item-actions">
                             <button class="rank-dropdown-btn" onclick="openBenchRankDropdown('${p.id}', this, ${p.rank})" style="padding:2px 6px;">
-                                <img src="${getRankIcon(p.rank)}" style="width:16px;height:16px;">
+                                <img src="${RANK_ICONS[p.rank]}" style="width:16px;height:16px;">
                                 <span style="font-size:10px;">${CS2_RANKS[p.rank].short}</span>
                             </button>
                             <button class="btn-bench-remove" onclick="removeFromBench('${p.id}')">✕</button>
@@ -884,7 +870,6 @@
             }
         }
 
-        // TEAM RESULTS - getRankIcon() kullanıyor
         function displayTeams() {
             const container = document.getElementById('teamsContainer');
             container.innerHTML = '';
@@ -910,7 +895,7 @@
                             return `
                                 <li class="${isSelected ? 'selected-for-swap' : ''}" onclick="selectPlayerForSwap(${ti}, ${pi})">
                                     <span class="player-number">${pi + 1}</span>
-                                    <img src="${getRankIcon(p.rank)}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                                    <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
                                     <span style="flex:1;">${p.name}</span>
                                     <span class="rank-badge">${CS2_RANKS[p.rank].short}</span>
                                 </li>
