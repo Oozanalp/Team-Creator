@@ -79,7 +79,8 @@
             text-align: left;
         }
         .main-rank-btn:hover { background: var(--discord-light-gray); border-radius: 4px; }
-        .main-rank-btn img { width: 28px; height: 28px; flex-shrink: 0; }
+        /* Updated Icon Size for better SVG display */
+        .main-rank-btn img { width: 42px; height: auto; flex-shrink: 0; } 
         .main-rank-btn .rank-name { flex: 1; }
         .main-rank-btn .arrow { font-size: 10px; color: var(--discord-text-muted); }
         
@@ -132,8 +133,9 @@
             margin-left: auto;
         }
         
-        .rank-icon { width: 28px; height: 28px; flex-shrink: 0; }
-        .rank-icon-small { width: 22px; height: 22px; flex-shrink: 0; }
+        /* Updated Icon Sizes for Lists */
+        .rank-icon { width: 36px; height: auto; flex-shrink: 0; }
+        .rank-icon-small { width: 28px; height: auto; flex-shrink: 0; }
         
         .btn-delete { 
             background: transparent; 
@@ -228,7 +230,8 @@
             white-space: nowrap;
         }
         .rank-dropdown-btn:hover { background: var(--discord-lighter-gray); }
-        .rank-dropdown-btn img { width: 20px; height: 20px; }
+        /* Dropdown button icon size */
+        .rank-dropdown-btn img { width: 22px; height: auto; }
         
         /* Fixed position dropdown overlay */
         .rank-dropdown-overlay {
@@ -249,7 +252,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             z-index: 9999;
             display: none;
-            width: 220px;
+            width: 240px;
             max-height: 400px;
             overflow-y: auto;
             border: 1px solid var(--discord-lighter-gray);
@@ -280,7 +283,8 @@
             transition: background 0.1s;
         }
         .rank-dropdown-item:hover { background: var(--discord-blurple); }
-        .rank-dropdown-item img { width: 28px; height: 28px; flex-shrink: 0; }
+        /* Dropdown list icon size */
+        .rank-dropdown-item img { width: 32px; height: auto; flex-shrink: 0; }
         .rank-dropdown-item .rank-short { 
             font-weight: 700; 
             min-width: 40px;
@@ -385,22 +389,23 @@
         </div>
     </div>
 
-    <!-- Dropdown Overlay (closes dropdown when clicking outside) -->
     <div class="rank-dropdown-overlay" id="dropdownOverlay" onclick="closeAllDropdowns()"></div>
     
-    <!-- Global Dropdown Menu (positioned with JS) -->
     <div class="rank-dropdown-menu" id="globalRankMenu"></div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <script>
-        // Rank Icons CDN
-        const RANK_ICONS = {};
-        for (let i = 1; i <= 18; i++) {
-            RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/${i}.png`;
-        }
+        // ==========================================================
+        // UPDATED: Centralized CS2 Rank Icons (Official SVGs)
+        // Source: SteamDatabase GameTracking (Official Game Files)
+        // ==========================================================
+const RANK_ICONS = {};
+for (let i = 1; i <= 18; i++) {
+    // CDN kullanarak "image/svg+xml" hatasını çözüyoruz:
+    RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/SteamDatabase/GameTracking-CS2/csgo/pak01_dir/resource/flash/econ/status_icons/skillgroup${i}.svg`;
+}
 
         const CS2_RANKS = {
             1: {name: 'Silver I', short: 'S1', group: 'Silver'},
