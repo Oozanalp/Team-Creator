@@ -780,7 +780,7 @@
                     <div class="bench-item">
                         <input type="checkbox" class="bench-checkbox" data-id="${p.id}" onchange="updateSelectedCount()" ${isActive ? 'disabled' : ''}>
                         <div class="bench-item-info">
-                            <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                            <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}" style="display: none;">
                             <span class="bench-item-name" ${isActive ? 'style="color:var(--discord-green);"' : ''}>${p.name}</span>
                         </div>
                         <div class="bench-item-actions">
