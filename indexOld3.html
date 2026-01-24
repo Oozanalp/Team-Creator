@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1EGIT Gaming - Team Creator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --discord-dark: #1e1f22;
+            --discord-darker: #111214;
+            --discord-not-quite-black: #2b2d31;
+            --discord-gray: #313338;
+            --discord-light-gray: #383a40;
+            --discord-lighter-gray: #404249;
+            --discord-text: #dbdee1;
+            --discord-text-muted: #949ba4;
+            --discord-text-faint: #6d6f78;
+            --discord-blurple: #5865f2;
+            --discord-blurple-hover: #4752c4;
+            --discord-green: #23a55a;
+            --discord-yellow: #f0b232;
+            --discord-red: #da373c;
+            --discord-white: #ffffff;
+        }
+        body {
+            font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--discord-gray);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--discord-text);
+        }
+        .page-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+        .main-container { flex: 1 1 auto; min-width: 0; max-width: calc(100% - 320px); }
+        .container { background: var(--discord-not-quite-black); border-radius: 8px; padding: 32px; position: relative; }
+        .server-info { position: absolute; top: 16px; right: 16px; text-align: right; font-family: 'Consolas', monospace; }
+        .server-info .connect { color: var(--discord-green); font-size: 13px; font-weight: 600; }
+        .server-info .password { color: var(--discord-yellow); font-size: 12px; margin-top: 2px; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { width: 140px; height: auto; margin-bottom: 12px; }
+        h1 { text-align: center; color: var(--discord-white); margin-bottom: 8px; font-size: 1.8em; font-weight: 600; }
+        .input-section { background: var(--discord-dark); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--discord-text-muted); font-size: 12px; text-transform: uppercase; }
+        .add-player-form { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.name-group { flex: 2; min-width: 180px; }
+        .form-group.rank-group { flex: 1.5; min-width: 240px; }
+        .form-group label { font-size: 12px; margin-bottom: 0; }
+        input[type="text"] { padding: 10px 12px; border: none; border-radius: 4px; font-size: 16px; background: var(--discord-darker); color: var(--discord-text); }
+        input[type="text"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
+        input[type="text"]::placeholder { color: var(--discord-text-faint); }
+        
+        /* Main Rank Selector for Add Player */
+        .main-rank-selector {
+            position: relative;
+            background: var(--discord-darker);
+            border-radius: 4px;
+            height: 42px;
+        }
+        .main-rank-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 12px;
+            height: 100%;
+            width: 100%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--discord-text);
+            font-size: 14px;
+            text-align: left;
+        }
+        .main-rank-btn:hover { background: var(--discord-light-gray); border-radius: 4px; }
+        .main-rank-btn img { width: 28px; height: 28px; flex-shrink: 0; }
+        .main-rank-btn .rank-name { flex: 1; }
+        .main-rank-btn .arrow { font-size: 10px; color: var(--discord-text-muted); }
+        
+        .btn-add { padding: 10px 20px; background: var(--discord-blurple); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; height: 42px; flex-shrink: 0; }
+        .btn-add:hover { background: var(--discord-blurple-hover); }
+        .players-list { margin-top: 20px; margin-bottom: 16px; }
+        .players-list h3 { color: var(--discord-white); margin-bottom: 12px; font-size: 1em; font-weight: 600; }
+        
+        #playersContainer { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 8px; 
+            max-height: 350px; 
+            overflow-y: auto; 
+            overflow-x: visible;
+            padding: 8px; 
+            background: var(--discord-darker); 
+            border-radius: 4px; 
+        }
+        #playersContainer::-webkit-scrollbar { width: 8px; }
+        #playersContainer::-webkit-scrollbar-track { background: var(--discord-darker); }
+        #playersContainer::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
+        
+        .player-card { 
+            background: var(--discord-light-gray); 
+            padding: 10px 12px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .player-card:hover { background: var(--discord-lighter-gray); }
+        
+        .player-name { 
+            flex: 1;
+            color: var(--discord-text); 
+            font-weight: 500; 
+            font-size: 14px; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap;
+            min-width: 0;
+        }
+        
+        .player-actions { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        
+        .rank-icon { width: 28px; height: 28px; flex-shrink: 0; }
+        .rank-icon-small { width: 22px; height: 22px; flex-shrink: 0; }
+        
+        .btn-delete { 
+            background: transparent; 
+            border: none; 
+            color: var(--discord-red); 
+            cursor: pointer; 
+            font-size: 18px; 
+            padding: 4px; 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-shrink: 0; 
+        }
+        .btn-delete:hover { background: rgba(218, 55, 60, 0.1); }
+        .empty-state { text-align: center; padding: 32px; color: var(--discord-text-faint); font-size: 14px; grid-column: 1 / -1; }
+        .settings { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+        .setting-group { flex: 1; min-width: 180px; }
+        input[type="number"] { width: 100%; padding: 10px 12px; border: none; border-radius: 4px; font-size: 16px; background: var(--discord-darker); color: var(--discord-text); }
+        input[type="number"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
+        .button-group { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        button { padding: 12px 24px; font-size: 14px; font-weight: 500; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: var(--discord-blurple); color: white; flex: 1; min-width: 140px; }
+        .btn-primary:hover { background: var(--discord-blurple-hover); }
+        .btn-secondary { background: transparent; color: var(--discord-red); border: 1px solid var(--discord-red); flex: 1; min-width: 140px; }
+        .btn-secondary:hover { background: rgba(218, 55, 60, 0.1); }
+        .results { margin-top: 24px; display: none; }
+        .results.active { display: block; }
+        .results > h2 { color: var(--discord-white); margin-bottom: 16px; font-size: 1.1em; font-weight: 600; }
+        .teams-wrapper { display: flex; gap: 16px; flex-wrap: wrap; }
+        .team { flex: 1; min-width: 280px; background: var(--discord-dark); padding: 16px; border-radius: 8px; }
+        .team.terrorists { border-left: 4px solid var(--discord-yellow); }
+        .team.counter-terrorists { border-left: 4px solid var(--discord-blurple); }
+        .team h2 { color: var(--discord-white); margin-bottom: 12px; font-size: 1em; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .team.terrorists h2 { color: var(--discord-yellow); }
+        .team.counter-terrorists h2 { color: var(--discord-blurple); }
+        .team-power { font-size: 0.85em; color: var(--discord-text-muted); background: var(--discord-darker); padding: 4px 12px; border-radius: 4px; }
+        .team ul { list-style: none; }
+        .team li { padding: 8px 12px; background: var(--discord-darker); margin-bottom: 6px; border-radius: 4px; display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--discord-text); cursor: pointer; }
+        .team li:hover { background: var(--discord-light-gray); }
+        .team li.selected-for-swap { background: var(--discord-blurple); box-shadow: 0 0 0 2px var(--discord-white); }
+        .team li:last-child { margin-bottom: 0; }
+        .player-number { color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
+        .team.terrorists .player-number { background: var(--discord-yellow); color: var(--discord-darker); }
+        .team.counter-terrorists .player-number { background: var(--discord-blurple); }
+        .swap-info { text-align: center; padding: 12px; background: var(--discord-darker); border-radius: 4px; margin-bottom: 16px; color: var(--discord-text-muted); font-size: 13px; }
+        .swap-info.active { background: var(--discord-blurple); color: white; }
+        .error { background: rgba(218, 55, 60, 0.1); border-left: 4px solid var(--discord-red); padding: 12px 16px; margin-top: 12px; border-radius: 4px; color: var(--discord-red); font-size: 14px; display: none; }
+        .error.active { display: block; }
+        .copy-btn { background: var(--discord-blurple); color: white; padding: 10px 16px; margin-top: 12px; font-size: 14px; font-weight: 500; }
+        .copy-btn:hover { background: var(--discord-blurple-hover); }
+        .bench-panel { width: 300px; flex-shrink: 0; background: var(--discord-not-quite-black); border-radius: 8px; padding: 16px; position: sticky; top: 20px; max-height: calc(100vh - 40px); display: flex; flex-direction: column; }
+        .bench-panel h3 { color: var(--discord-white); margin-bottom: 16px; font-size: 1em; font-weight: 600; }
+        .bench-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
+        .bench-add-form input { flex: 1; padding: 8px 12px; border: none; border-radius: 4px; font-size: 14px; background: var(--discord-darker); color: var(--discord-text); }
+        .bench-add-form button { padding: 8px 12px; min-width: auto; flex: none; }
+        .bench-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+        .bench-actions button { flex: 1; padding: 8px 12px; font-size: 12px; min-width: auto; }
+        .btn-green { background: var(--discord-green); color: white; border: none; }
+        .btn-green:hover { filter: brightness(0.9); }
+        .bench-list { flex: 1; overflow-y: auto; overflow-x: visible; min-height: 200px; }
+        .bench-list::-webkit-scrollbar { width: 6px; }
+        .bench-list::-webkit-scrollbar-track { background: var(--discord-darker); }
+        .bench-list::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
+        .bench-item { display: flex; align-items: center; padding: 6px 10px; background: var(--discord-dark); border-radius: 4px; margin-bottom: 4px; gap: 8px; }
+        .bench-item:hover { background: var(--discord-light-gray); }
+        .bench-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--discord-blurple); flex-shrink: 0; }
+        .bench-item-info { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+        .bench-item-name { color: var(--discord-text); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bench-item-actions { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
+        .btn-bench-remove { background: transparent; color: var(--discord-red); border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 14px; min-width: auto; }
+        .btn-bench-remove:hover { background: rgba(218, 55, 60, 0.1); }
+        .shuffle-info { font-size: 11px; color: var(--discord-text-faint); margin-top: 8px; font-style: italic; }
+        .selected-count { font-size: 12px; color: var(--discord-green); margin-bottom: 8px; }
+        .rank-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-lighter-gray); color: var(--discord-text); }
+        
+        /* ===== RANK DROPDOWN - FIXED POSITION ===== */
+        .rank-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: var(--discord-darker);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--discord-text);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .rank-dropdown-btn:hover { background: var(--discord-lighter-gray); }
+        .rank-dropdown-btn img { width: 20px; height: 20px; }
+        
+        /* Fixed position dropdown overlay */
+        .rank-dropdown-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9998;
+        }
+        .rank-dropdown-overlay.open { display: block; }
+        
+        .rank-dropdown-menu {
+            position: fixed;
+            background: var(--discord-dark);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            z-index: 9999;
+            display: none;
+            width: 220px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--discord-lighter-gray);
+        }
+        .rank-dropdown-menu.open { display: block; }
+        .rank-dropdown-menu::-webkit-scrollbar { width: 8px; }
+        .rank-dropdown-menu::-webkit-scrollbar-track { background: var(--discord-darker); border-radius: 0 8px 8px 0; }
+        .rank-dropdown-menu::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
+        
+        .rank-dropdown-group { padding: 8px 0; }
+        .rank-dropdown-group:not(:last-child) { border-bottom: 1px solid var(--discord-lighter-gray); }
+        .rank-dropdown-group-label { 
+            padding: 4px 12px 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--discord-text-muted); 
+            text-transform: uppercase;
+        }
+        
+        .rank-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--discord-text);
+            font-size: 13px;
+            transition: background 0.1s;
+        }
+        .rank-dropdown-item:hover { background: var(--discord-blurple); }
+        .rank-dropdown-item img { width: 28px; height: 28px; flex-shrink: 0; }
+        .rank-dropdown-item .rank-short { 
+            font-weight: 700; 
+            min-width: 40px;
+        }
+        .rank-dropdown-item .rank-full { 
+            color: var(--discord-text-muted);
+            font-size: 12px;
+        }
+        .rank-dropdown-item.selected { background: var(--discord-blurple); }
+        .rank-dropdown-item.selected .rank-full { color: rgba(255,255,255,0.8); }
+        
+        @media (max-width: 900px) {
+            .page-wrapper { flex-direction: column; }
+            .bench-panel { width: 100%; position: static; max-height: none; order: -1; }
+            .main-container { max-width: 100%; }
+            .bench-list { max-height: 250px; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 16px; }
+            h1 { font-size: 1.4em; }
+            .logo { width: 100px; }
+            .server-info { position: static; text-align: center; margin-bottom: 16px; }
+            .input-section { padding: 14px; }
+            .add-player-form { flex-direction: column; gap: 10px; }
+            .form-group.name-group, .form-group.rank-group { min-width: 100%; }
+            .btn-add { width: 100%; height: 44px; }
+            #playersContainer { grid-template-columns: 1fr; max-height: 300px; }
+            .player-card { padding: 10px; }
+            .settings { flex-direction: column; gap: 12px; }
+            .button-group { flex-direction: column; gap: 10px; }
+            .btn-primary, .btn-secondary { width: 100%; min-width: auto; }
+            .teams-wrapper { flex-direction: column; }
+            .team { min-width: 100%; }
+            .copy-btn { width: 100%; padding: 14px; }
+            .bench-panel { padding: 14px; margin-bottom: 10px; }
+            .rank-dropdown-menu { width: 200px; max-height: 350px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="main-container">
+            <div class="container">
+                <div class="server-info">
+                    <div class="connect">Connect 95.173.175.173</div>
+                    <div class="password">Password 3113</div>
+                </div>
+                <div class="header">
+                    <img src="https://raw.githubusercontent.com/Oozanalp/Team-Creator/main/guncel_1egit%202.png" alt="1EGIT Gaming Logo" class="logo">
+                    <h1>Team Creator</h1>
+                </div>
+                <div class="input-section">
+                    <label>🎮 Add New Player</label>
+                    <div class="add-player-form">
+                        <div class="form-group name-group">
+                            <label for="playerName">Name</label>
+                            <input type="text" id="playerName" placeholder="Player name...">
+                        </div>
+                        <div class="form-group rank-group">
+                            <label>CS2 Rank</label>
+                            <div class="main-rank-selector">
+                                <button type="button" class="main-rank-btn" id="mainRankBtn" onclick="toggleMainRankDropdown(event)">
+                                    <img id="mainRankIcon" src="" alt="Rank">
+                                    <span class="rank-name" id="mainRankName">Gold Nova III</span>
+                                    <span class="arrow">▼</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="playerRank" value="9">
+                        </div>
+                        <button class="btn-add" onclick="addPlayer()">+ Add</button>
+                    </div>
+                    <div class="players-list">
+                        <h3>📋 Active Players (<span id="playerCount">0</span>)</h3>
+                        <div id="playersContainer"></div>
+                    </div>
+                    <div class="settings">
+                        <div class="setting-group"><label for="teamCount">Number of Teams</label><input type="number" id="teamCount" min="2" max="20" value="2"></div>
+                        <div class="setting-group"><label for="playersPerTeam">Players per Team (0 = Auto)</label><input type="number" id="playersPerTeam" min="0" max="50" value="5"></div>
+                    </div>
+                    <div class="error" id="error"></div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="createTeams()">🎲 Create Balanced Teams</button>
+                        <button class="btn-secondary" onclick="clearAllPlayers()">🗑️ Clear Active Players</button>
+                    </div>
+                    <div class="shuffle-info">💡 Press multiple times to shuffle. Click players in teams to swap them.</div>
+                </div>
+                <div class="results" id="results">
+                    <h2>📋 Generated Teams</h2>
+                    <div class="swap-info" id="swapInfo">Click a player to select, then click another to swap</div>
+                    <div class="teams-wrapper" id="teamsContainer"></div>
+                    <button class="copy-btn" onclick="copyResults()">📋 Copy Results</button>
+                </div>
+            </div>
+        </div>
+        <div class="bench-panel">
+            <h3>🪑 Bench</h3>
+            <div class="bench-add-form"><input type="text" id="benchName" placeholder="Add to bench..."><button class="btn-add" onclick="addToBench()">+</button></div>
+            <div class="bench-actions"><button class="btn-green" onclick="addSelectedToActive()">Add Selected</button><button class="btn-secondary" onclick="selectAllBench()">Select All</button></div>
+            <div class="selected-count" id="selectedCount"></div>
+            <div class="bench-list" id="benchList"></div>
+        </div>
+    </div>
+
+    <!-- Dropdown Overlay (closes dropdown when clicking outside) -->
+    <div class="rank-dropdown-overlay" id="dropdownOverlay" onclick="closeAllDropdowns()"></div>
+    
+    <!-- Global Dropdown Menu (positioned with JS) -->
+    <div class="rank-dropdown-menu" id="globalRankMenu"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Rank Icons CDN
+        const RANK_ICONS = {};
+        for (let i = 1; i <= 18; i++) {
+            RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/${i}.png`;
+        }
+
+        const CS2_RANKS = {
+            1: {name: 'Silver I', short: 'S1', group: 'Silver'},
+            2: {name: 'Silver II', short: 'S2', group: 'Silver'},
+            3: {name: 'Silver III', short: 'S3', group: 'Silver'},
+            4: {name: 'Silver IV', short: 'S4', group: 'Silver'},
+            5: {name: 'Silver Elite', short: 'SE', group: 'Silver'},
+            6: {name: 'Silver Elite Master', short: 'SEM', group: 'Silver'},
+            7: {name: 'Gold Nova I', short: 'GN1', group: 'Gold Nova'},
+            8: {name: 'Gold Nova II', short: 'GN2', group: 'Gold Nova'},
+            9: {name: 'Gold Nova III', short: 'GN3', group: 'Gold Nova'},
+            10: {name: 'Gold Nova Master', short: 'GNM', group: 'Gold Nova'},
+            11: {name: 'Master Guardian I', short: 'MG1', group: 'Master Guardian'},
+            12: {name: 'Master Guardian II', short: 'MG2', group: 'Master Guardian'},
+            13: {name: 'Master Guardian Elite', short: 'MGE', group: 'Master Guardian'},
+            14: {name: 'DMG', short: 'DMG', group: 'Master Guardian'},
+            15: {name: 'Legendary Eagle', short: 'LE', group: 'Elite'},
+            16: {name: 'Legendary Eagle Master', short: 'LEM', group: 'Elite'},
+            17: {name: 'Supreme', short: 'SMFC', group: 'Elite'},
+            18: {name: 'Global Elite', short: 'GE', group: 'Elite'}
+        };
+
+        const RANK_GROUPS = [
+            {label: 'Silver', ranks: [1,2,3,4,5,6]},
+            {label: 'Gold Nova', ranks: [7,8,9,10]},
+            {label: 'Master Guardian', ranks: [11,12,13,14]},
+            {label: 'Elite', ranks: [15,16,17,18]}
+        ];
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",
+            authDomain: "legit---team-creator.firebaseapp.com",
+            databaseURL: "https://legit---team-creator-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "legit---team-creator",
+            storageBucket: "legit---team-creator.firebasestorage.app",
+            messagingSenderId: "475101153038",
+            appId: "1:475101153038:web:a6a464384178890d60f95f"
+        };
+
+        let db = null;
+        let players = [];
+        let bench = [];
+        let currentTeams = [];
+        let shuffleCount = 0;
+        let selectedForSwap = null;
+        let currentDropdownCallback = null;
+
+        // Initialize
+        window.onload = function() {
+            if (typeof firebase !== 'undefined') {
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.database();
+                    console.log('Firebase connected');
+                } catch (e) {
+                    console.error('Firebase error:', e);
+                }
+            }
+
+            // Set initial main rank selector
+            setMainRankDisplay(9);
+            loadData();
+
+            document.getElementById('playerName').addEventListener('keypress', e => {
+                if (e.key === 'Enter') addPlayer();
+            });
+            document.getElementById('benchName').addEventListener('keypress', e => {
+                if (e.key === 'Enter') addToBench();
+            });
+        };
+
+        function setMainRankDisplay(rank) {
+            document.getElementById('mainRankIcon').src = RANK_ICONS[rank];
+            document.getElementById('mainRankName').textContent = CS2_RANKS[rank].name;
+            document.getElementById('playerRank').value = rank;
+        }
+
+        function buildRankMenuHTML(selectedRank, onSelectFn) {
+            let html = '';
+            RANK_GROUPS.forEach(group => {
+                html += `<div class="rank-dropdown-group">`;
+                html += `<div class="rank-dropdown-group-label">${group.label}</div>`;
+                group.ranks.forEach(r => {
+                    const rank = CS2_RANKS[r];
+                    const isSelected = r === selectedRank;
+                    html += `
+                        <div class="rank-dropdown-item ${isSelected ? 'selected' : ''}" onclick="${onSelectFn}(${r})">
+                            <img src="${RANK_ICONS[r]}" alt="${rank.name}">
+                            <span class="rank-short">${rank.short}</span>
+                            <span class="rank-full">${rank.name}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+            return html;
+        }
+
+        function showDropdownAt(btnElement, selectedRank, callback) {
+            const menu = document.getElementById('globalRankMenu');
+            const overlay = document.getElementById('dropdownOverlay');
+            const rect = btnElement.getBoundingClientRect();
+            
+            // Store callback
+            currentDropdownCallback = callback;
+            
+            // Build menu
+            menu.innerHTML = buildRankMenuHTML(selectedRank, 'handleRankSelect');
+            
+            // Position menu
+            let top = rect.bottom + 4;
+            let left = rect.left;
+            
+            // Check if menu would go off screen bottom
+            const menuHeight = 400;
+            if (top + menuHeight > window.innerHeight) {
+                top = rect.top - menuHeight - 4;
+                if (top < 0) top = 10;
+            }
+            
+            // Check right edge
+            if (left + 220 > window.innerWidth) {
+                left = window.innerWidth - 230;
+            }
+            
+            menu.style.top = top + 'px';
+            menu.style.left = left + 'px';
+            
+            menu.classList.add('open');
+            overlay.classList.add('open');
+        }
+
+        function handleRankSelect(rank) {
+            if (currentDropdownCallback) {
+                currentDropdownCallback(rank);
+            }
+            closeAllDropdowns();
+        }
+
+        function closeAllDropdowns() {
+            document.getElementById('globalRankMenu').classList.remove('open');
+            document.getElementById('dropdownOverlay').classList.remove('open');
+            currentDropdownCallback = null;
+        }
+
+        function toggleMainRankDropdown(event) {
+            event.stopPropagation();
+            const currentRank = parseInt(document.getElementById('playerRank').value);
+            showDropdownAt(event.currentTarget, currentRank, (rank) => {
+                setMainRankDisplay(rank);
+            });
+        }
+
+        function openPlayerRankDropdown(playerId, btnElement, currentRank) {
+            showDropdownAt(btnElement, currentRank, (rank) => {
+                updatePlayerRank(playerId, rank);
+            });
+        }
+
+        function openBenchRankDropdown(benchId, btnElement, currentRank) {
+            showDropdownAt(btnElement, currentRank, (rank) => {
+                updateBenchRank(benchId, rank);
+            });
+        }
+
+        function loadData() {
+            if (db) {
+                db.ref('players').on('value', snapshot => {
+                    players = [];
+                    snapshot.forEach(child => {
+                        players.push({id: child.key, ...child.val()});
+                    });
+                    renderPlayers();
+                    renderBench();
+                });
+
+                db.ref('bench').on('value', snapshot => {
+                    bench = [];
+                    snapshot.forEach(child => {
+                        bench.push({id: child.key, ...child.val()});
+                    });
+                    renderBench();
+                });
+            } else {
+                players = JSON.parse(localStorage.getItem('players_1egit')) || [];
+                bench = JSON.parse(localStorage.getItem('bench_1egit')) || [];
+                renderPlayers();
+                renderBench();
+            }
+        }
+
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const name = nameInput.value.trim();
+            const rank = parseInt(document.getElementById('playerRank').value);
+
+            if (!name) { showError('Please enter a player name!'); return; }
+            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showError('Player already active!'); return;
+            }
+
+            if (db) {
+                db.ref('players').push().set({name, rank});
+            } else {
+                players.push({name, rank, id: 'local_' + Date.now()});
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+            }
+
+            nameInput.value = '';
+            nameInput.focus();
+            hideError();
+        }
+
+        function addToBench() {
+            const nameInput = document.getElementById('benchName');
+            const name = nameInput.value.trim();
+
+            if (!name) return;
+            if (bench.some(b => b.name.toLowerCase() === name.toLowerCase())) {
+                showError('Already on bench!'); return;
+            }
+
+            if (db) {
+                db.ref('bench').push().set({name, rank: 9});
+            } else {
+                bench.push({name, rank: 9, id: 'local_' + Date.now()});
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+                renderBench();
+            }
+
+            nameInput.value = '';
+            hideError();
+        }
+
+        function addSelectedToActive() {
+            const checkboxes = document.querySelectorAll('.bench-checkbox:checked');
+            if (checkboxes.length === 0) { showError('No players selected!'); return; }
+
+            checkboxes.forEach(cb => {
+                const benchId = cb.dataset.id;
+                const bp = bench.find(b => b.id === benchId);
+                if (bp && !players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
+                    if (db) {
+                        db.ref('players').push().set({name: bp.name, rank: bp.rank});
+                    } else {
+                        players.push({name: bp.name, rank: bp.rank, id: 'local_' + Date.now() + Math.random()});
+                    }
+                }
+            });
+
+            if (!db) {
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+                renderBench();
+            }
+            hideError();
+        }
+
+        function selectAllBench() {
+            const cbs = document.querySelectorAll('.bench-checkbox:not(:disabled)');
+            const allChecked = Array.from(cbs).every(c => c.checked);
+            cbs.forEach(c => c.checked = !allChecked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const count = document.querySelectorAll('.bench-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = count > 0 ? `${count} selected` : '';
+        }
+
+        function updatePlayerRank(playerId, newRank) {
+            if (db) {
+                db.ref('players/' + playerId).update({rank: parseInt(newRank)});
+            } else {
+                const p = players.find(x => x.id === playerId);
+                if (p) p.rank = parseInt(newRank);
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+            }
+        }
+
+        function deletePlayer(playerId) {
+            const p = players.find(x => x.id === playerId);
+            if (p && confirm(`Remove ${p.name}?`)) {
+                if (db) {
+                    db.ref('players/' + playerId).remove();
+                } else {
+                    players = players.filter(x => x.id !== playerId);
+                    localStorage.setItem('players_1egit', JSON.stringify(players));
+                    renderPlayers();
+                    renderBench();
+                }
+            }
+        }
+
+        function clearAllPlayers() {
+            if (players.length === 0) { showError('No active players!'); return; }
+            if (confirm('Clear all active players?')) {
+                if (db) {
+                    db.ref('players').remove();
+                } else {
+                    players = [];
+                    localStorage.setItem('players_1egit', JSON.stringify(players));
+                    renderPlayers();
+                    renderBench();
+                }
+                document.getElementById('results').classList.remove('active');
+                shuffleCount = 0;
+                currentTeams = [];
+            }
+        }
+
+        function updateBenchRank(benchId, newRank) {
+            if (db) {
+                db.ref('bench/' + benchId).update({rank: parseInt(newRank)});
+            } else {
+                const b = bench.find(x => x.id === benchId);
+                if (b) b.rank = parseInt(newRank);
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+                renderBench();
+            }
+        }
+
+        function removeFromBench(benchId) {
+            if (db) {
+                db.ref('bench/' + benchId).remove();
+            } else {
+                bench = bench.filter(x => x.id !== benchId);
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+                renderBench();
+            }
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('playersContainer');
+            document.getElementById('playerCount').textContent = players.length;
+
+            if (players.length === 0) {
+                container.innerHTML = '<div class="empty-state">No active players. Add from bench or manually.</div>';
+                return;
+            }
+
+            const sorted = [...players].sort((a, b) => b.rank - a.rank);
+            container.innerHTML = sorted.map(p => `
+                <div class="player-card">
+                    <span class="player-name">${p.name}</span>
+                    <div class="player-actions">
+                        <img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
+                        <button class="rank-dropdown-btn" onclick="openPlayerRankDropdown('${p.id}', this, ${p.rank})">
+                            <span>${CS2_RANKS[p.rank].short}</span>
+                            <span style="font-size:10px;">▼</span>
+                        </button>
+                        <button class="btn-delete" onclick="deletePlayer('${p.id}')">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderBench() {
+            const container = document.getElementById('benchList');
+
+            if (bench.length === 0) {
+                container.innerHTML = '<div class="empty-state">Bench is empty</div>';
+                document.getElementById('selectedCount').textContent = '';
+                return;
+            }
+
+            const sorted = [...bench].sort((a, b) => a.name.localeCompare(b.name));
+            container.innerHTML = sorted.map(p => {
+                const isActive = players.some(x => x.name.toLowerCase() === p.name.toLowerCase());
+                return `
+                    <div class="bench-item">
+                        <input type="checkbox" class="bench-checkbox" data-id="${p.id}" onchange="updateSelectedCount()" ${isActive ? 'disabled' : ''}>
+                        <div class="bench-item-info">
+                            <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                            <span class="bench-item-name" ${isActive ? 'style="color:var(--discord-green);"' : ''}>${p.name}</span>
+                        </div>
+                        <div class="bench-item-actions">
+                            <button class="rank-dropdown-btn" onclick="openBenchRankDropdown('${p.id}', this, ${p.rank})" style="padding:2px 6px;">
+                                <img src="${RANK_ICONS[p.rank]}" style="width:16px;height:16px;">
+                                <span style="font-size:10px;">${CS2_RANKS[p.rank].short}</span>
+                            </button>
+                            <button class="btn-bench-remove" onclick="removeFromBench('${p.id}')">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            updateSelectedCount();
+        }
+
+        function createTeams() {
+            hideError();
+            if (players.length === 0) { showError('Add players first!'); return; }
+
+            const teamCount = parseInt(document.getElementById('teamCount').value);
+            if (teamCount < 2 || teamCount > players.length) {
+                showError(`Teams must be between 2 and ${players.length}`); return;
+            }
+
+            const ppt = parseInt(document.getElementById('playersPerTeam').value);
+            if (ppt > 0 && ppt * teamCount > players.length) {
+                showError(`Need ${ppt * teamCount} players, have ${players.length}`); return;
+            }
+
+            shuffleCount++;
+            selectedForSwap = null;
+            currentTeams = balanceTeams(players, teamCount, ppt, shuffleCount);
+            displayTeams();
+        }
+
+        function balanceTeams(playerList, teamCount, playersPerTeam, iteration) {
+            let sorted = [...playerList].sort((a, b) => b.rank - a.rank);
+            const total = playersPerTeam > 0 ? playersPerTeam * teamCount : playerList.length;
+            let toUse = sorted.slice(0, total);
+
+            if (iteration > 1) {
+                for (let i = 0; i < toUse.length - 1; i++) {
+                    if (Math.abs(toUse[i].rank - toUse[i + 1].rank) <= 2 && Math.random() < 0.4) {
+                        [toUse[i], toUse[i + 1]] = [toUse[i + 1], toUse[i]];
+                    }
+                }
+            }
+
+            const teams = Array.from({length: teamCount}, () => ({players: [], totalPower: 0}));
+            toUse.forEach((player, index) => {
+                const round = Math.floor(index / teamCount);
+                const pos = index % teamCount;
+                const teamIdx = round % 2 === 0 ? pos : teamCount - 1 - pos;
+                teams[teamIdx].players.push({...player});
+                teams[teamIdx].totalPower += player.rank;
+            });
+
+            return teams;
+        }
+
+        function selectPlayerForSwap(teamIndex, playerIndex) {
+            if (selectedForSwap === null) {
+                selectedForSwap = {teamIndex, playerIndex};
+                displayTeams();
+                document.getElementById('swapInfo').textContent = `Selected: ${currentTeams[teamIndex].players[playerIndex].name} - Click another to swap`;
+                document.getElementById('swapInfo').classList.add('active');
+            } else {
+                if (selectedForSwap.teamIndex === teamIndex && selectedForSwap.playerIndex === playerIndex) {
+                    selectedForSwap = null;
+                    displayTeams();
+                    document.getElementById('swapInfo').textContent = 'Click a player to select, then click another to swap';
+                    document.getElementById('swapInfo').classList.remove('active');
+                    return;
+                }
+
+                const t1 = currentTeams[selectedForSwap.teamIndex];
+                const t2 = currentTeams[teamIndex];
+                const p1 = t1.players[selectedForSwap.playerIndex];
+                const p2 = t2.players[playerIndex];
+
+                t1.players[selectedForSwap.playerIndex] = p2;
+                t2.players[playerIndex] = p1;
+
+                t1.totalPower = t1.players.reduce((sum, p) => sum + p.rank, 0);
+                t2.totalPower = t2.players.reduce((sum, p) => sum + p.rank, 0);
+
+                selectedForSwap = null;
+                displayTeams();
+                document.getElementById('swapInfo').textContent = 'Swapped! Click to swap more';
+                document.getElementById('swapInfo').classList.remove('active');
+            }
+        }
+
+        function displayTeams() {
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+
+            const names = ['Terrorists', 'Counter-Terrorists'];
+            const classes = ['terrorists', 'counter-terrorists'];
+
+            currentTeams.forEach((team, ti) => {
+                const div = document.createElement('div');
+                div.className = `team ${classes[ti % 2]}`;
+
+                const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
+                const avgName = CS2_RANKS[avgRank] ? CS2_RANKS[avgRank].short : '-';
+
+                div.innerHTML = `
+                    <h2>
+                        <span>${names[ti % 2]} (${team.players.length})</span>
+                        <span class="team-power">Avg: ${avgName}</span>
+                    </h2>
+                    <ul>
+                        ${team.players.map((p, pi) => {
+                            const isSelected = selectedForSwap && selectedForSwap.teamIndex === ti && selectedForSwap.playerIndex === pi;
+                            return `
+                                <li class="${isSelected ? 'selected-for-swap' : ''}" onclick="selectPlayerForSwap(${ti}, ${pi})">
+                                    <span class="player-number">${pi + 1}</span>
+                                    <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                                    <span style="flex:1;">${p.name}</span>
+                                    <span class="rank-badge">${CS2_RANKS[p.rank].short}</span>
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('results').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            }, 100);
+        }
+
+        function showError(msg) {
+            const err = document.getElementById('error');
+            err.textContent = '⚠️ ' + msg;
+            err.classList.add('active');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.remove('active');
+        }
+
+        function copyResults() {
+            let text = '🏆 1EGIT GAMING - BALANCED TEAMS 🏆\n\n';
+            const names = ['Terrorists', 'Counter-Terrorists'];
+
+            currentTeams.forEach((team, i) => {
+                const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
+                text += `${names[i % 2]} (${team.players.length}) - Avg: ${CS2_RANKS[avgRank]?.short || '-'}\n`;
+                team.players.forEach((p, j) => {
+                    text += `  ${j + 1}. ${p.name} [${CS2_RANKS[p.rank].short}]\n`;
+                });
+                text += '\n';
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy Results', 2000);
+            });
+        }
+    </script>
+</body>
+</html>
