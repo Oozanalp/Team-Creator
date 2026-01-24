@@ -308,8 +308,17 @@
             const rank = parseInt(document.getElementById('playerRank').value);
             if (!name) { showError('Please enter a player name!'); return; }
             if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) { showError('Already active!'); return; }
-            players.push({name, rank, id: Date.now().toString()}); savePlayers(); renderPlayers();
-            document.getElementById('playerName').value = ''; document.getElementById('playerRank').value = '9'; updateRankIcon();
+            const newId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            if (useFirebase && db) {
+                db.ref('players/' + newId).set({name: name, rank: rank});
+            } else {
+                players.push({name, rank, id: newId});
+                savePlayers();
+                renderPlayers();
+            }
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerRank').value = '9';
+            updateRankIcon();
             document.getElementById('error').classList.remove('active');
         }
         function addFromBench(i) {
@@ -335,8 +344,16 @@
             const name = document.getElementById('benchName').value.trim();
             if (!name) return;
             if (bench.some(b => b.name.toLowerCase() === name.toLowerCase())) { showError('Already on bench!'); return; }
-            bench.push({name, rank: 9, id: Date.now().toString()}); saveBench(); renderBench();
-            document.getElementById('benchName').value = ''; document.getElementById('error').classList.remove('active');
+            const newId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            if (useFirebase && db) {
+                db.ref('bench/' + newId).set({name: name, rank: 9});
+            } else {
+                bench.push({name, rank: 9, id: newId});
+                saveBench();
+                renderBench();
+            }
+            document.getElementById('benchName').value = '';
+            document.getElementById('error').classList.remove('active');
         }
         function updateBenchRank(i, r) { bench[i].rank = parseInt(r); saveBench(); renderBench(); }
         function removeFromBench(i) { bench.splice(i,1); saveBench(); renderBench(); }
