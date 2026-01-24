@@ -86,10 +86,11 @@
         #playersContainer::-webkit-scrollbar { width: 8px; }
         #playersContainer::-webkit-scrollbar-track { background: var(--discord-darker); }
         #playersContainer::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
-        .player-card { background: var(--discord-light-gray); padding: 8px 12px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .player-card { background: var(--discord-light-gray); padding: 10px 12px; border-radius: 4px; display: flex; align-items: center; gap: 10px; }
         .player-card:hover { background: var(--discord-lighter-gray); }
-        .player-info { display: flex; align-items: center; gap: 10px; flex: 1; }
-        .player-name { color: var(--discord-text); font-weight: 500; font-size: 14px; }
+        .player-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .player-name { color: var(--discord-text); font-weight: 500; font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .player-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .rank-icon { width: 28px; height: 28px; }
         .rank-icon-small { width: 22px; height: 22px; }
         .rank-select-inline { padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-darker); color: var(--discord-text); cursor: pointer; }
@@ -158,17 +159,65 @@
         .selected-count { font-size: 12px; color: var(--discord-green); margin-bottom: 8px; }
         @media (max-width: 900px) {
             .page-wrapper { flex-direction: column; }
-            .bench-panel { width: 100%; position: static; max-height: none; }
+            .bench-panel { width: 100%; position: static; max-height: none; order: -1; }
             .main-container { max-width: 100%; }
-            .bench-list { max-height: 300px; }
+            .bench-list { max-height: 250px; }
         }
         @media (max-width: 768px) {
+            body { padding: 10px; }
             .container { padding: 16px; }
-            h1 { font-size: 1.5em; }
-            .settings, .button-group, .add-player-form { flex-direction: column; }
-            button, .form-group { width: 100%; }
+            h1 { font-size: 1.4em; }
+            .logo { width: 100px; }
             .server-info { position: static; text-align: center; margin-bottom: 16px; }
-            .teams-wrapper { flex-direction: column; }
+            .server-info .connect { font-size: 12px; }
+            .server-info .password { font-size: 11px; }
+            .input-section { padding: 14px; }
+            .add-player-form { flex-direction: column; gap: 10px; }
+            .form-group.name-group, .form-group.rank-group { min-width: 100%; }
+            .btn-add { width: 100%; height: 44px; }
+            #playersContainer { grid-template-columns: 1fr; max-height: 280px; padding: 6px; gap: 6px; }
+            .player-card { padding: 10px; }
+            .player-name { font-size: 13px; }
+            .rank-icon { width: 24px; height: 24px; }
+            .rank-select-inline { font-size: 10px; padding: 4px 6px; }
+            .btn-delete { width: 32px; height: 32px; font-size: 18px; }
+            .settings { flex-direction: column; gap: 12px; }
+            .setting-group { min-width: 100%; }
+            .button-group { flex-direction: column; gap: 10px; }
+            button { width: 100%; padding: 14px; font-size: 14px; min-width: auto; }
+            .shuffle-info { font-size: 10px; text-align: center; }
+            .teams-wrapper { flex-direction: column; gap: 12px; }
+            .team { min-width: 100%; padding: 12px; }
+            .team h2 { font-size: 0.9em; flex-wrap: wrap; }
+            .team li { padding: 8px 10px; gap: 8px; font-size: 13px; }
+            .player-number { width: 22px; height: 22px; font-size: 11px; }
+            .rank-icon-small { width: 20px; height: 20px; }
+            .rank-badge { padding: 3px 8px; font-size: 10px; }
+            .swap-info { font-size: 12px; padding: 10px; }
+            .copy-btn { width: 100%; padding: 14px; }
+            .bench-panel { padding: 14px; margin-bottom: 10px; }
+            .bench-panel h3 { font-size: 0.95em; margin-bottom: 12px; }
+            .bench-add-form { gap: 6px; }
+            .bench-add-form input { padding: 10px; font-size: 14px; }
+            .bench-add-form button { padding: 10px 14px; height: auto; }
+            .bench-actions { gap: 6px; }
+            .bench-actions button { padding: 10px; font-size: 11px; }
+            .bench-list { max-height: 200px; }
+            .bench-item { padding: 8px; gap: 6px; }
+            .bench-item-name { font-size: 12px; }
+            .bench-checkbox { width: 20px; height: 20px; }
+            .error { font-size: 13px; padding: 10px 12px; }
+        }
+        @media (max-width: 400px) {
+            body { padding: 6px; }
+            .container { padding: 12px; }
+            h1 { font-size: 1.2em; }
+            .logo { width: 80px; }
+            .input-section { padding: 12px; }
+            label { font-size: 11px; }
+            .player-name { font-size: 12px; }
+            .rank-icon { width: 22px; height: 22px; }
+            .team li { padding: 6px 8px; }
         }
     </style>
 </head>
@@ -194,7 +243,7 @@
                         <div class="form-group rank-group">
                             <label for="playerRank">CS2 Rank</label>
                             <div class="rank-select-wrapper">
-                                <img id="selectedRankIcon" class="rank-icon" src="https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup9.png" alt="Rank">
+                                <img id="selectedRankIcon" class="rank-icon" src="https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/9.png" alt="Rank">
                                 <select id="playerRank" onchange="updateRankIcon()">
                                     <optgroup label="Silver"><option value="1">Silver I</option><option value="2">Silver II</option><option value="3">Silver III</option><option value="4">Silver IV</option><option value="5">Silver Elite</option><option value="6">Silver Elite Master</option></optgroup>
                                     <optgroup label="Gold Nova"><option value="7">Gold Nova I</option><option value="8">Gold Nova II</option><option value="9" selected>Gold Nova III</option><option value="10">Gold Nova Master</option></optgroup>
@@ -237,7 +286,7 @@
         </div>
     </div>
     <script>
-        const RANK_ICONS = {1:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup1.png',2:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup2.png',3:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup3.png',4:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup4.png',5:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup5.png',6:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup6.png',7:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup7.png',8:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup8.png',9:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup9.png',10:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup10.png',11:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup11.png',12:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup12.png',13:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup13.png',14:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup14.png',15:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup15.png',16:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup16.png',17:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup17.png',18:'https://raw.githubusercontent.com/ItzArty/csgo-rank-icons/main/ranks/skillgroup18.png'};
+        const RANK_ICONS = {1:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/1.png',2:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/2.png',3:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/3.png',4:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/4.png',5:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/5.png',6:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/6.png',7:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/7.png',8:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/8.png',9:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/9.png',10:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/10.png',11:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/11.png',12:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/12.png',13:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/13.png',14:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/14.png',15:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/15.png',16:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/16.png',17:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/17.png',18:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/18.png'};
         const CS2_RANKS = {1:{name:'Silver I',short:'S1'},2:{name:'Silver II',short:'S2'},3:{name:'Silver III',short:'S3'},4:{name:'Silver IV',short:'S4'},5:{name:'Silver Elite',short:'SE'},6:{name:'Silver Elite Master',short:'SEM'},7:{name:'Gold Nova I',short:'GN1'},8:{name:'Gold Nova II',short:'GN2'},9:{name:'Gold Nova III',short:'GN3'},10:{name:'Gold Nova Master',short:'GNM'},11:{name:'Master Guardian I',short:'MG1'},12:{name:'Master Guardian II',short:'MG2'},13:{name:'Master Guardian Elite',short:'MGE'},14:{name:'Distinguished Master Guardian',short:'DMG'},15:{name:'Legendary Eagle',short:'LE'},16:{name:'Legendary Eagle Master',short:'LEM'},17:{name:'Supreme Master First Class',short:'SMFC'},18:{name:'Global Elite',short:'GE'}};
         const firebaseConfig = {apiKey:"AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",authDomain:"legit---team-creator.firebaseapp.com",databaseURL:"https://legit---team-creator-default-rtdb.europe-west1.firebasedatabase.app",projectId:"legit---team-creator",storageBucket:"legit---team-creator.firebasestorage.app",messagingSenderId:"475101153038",appId:"1:475101153038:web:a6a464384178890d60f95f"};
         const useFirebase = true;
@@ -298,7 +347,16 @@
             if (!players.length) { c.innerHTML = '<div class="empty-state">No active players</div>'; return; }
             c.innerHTML = [...players].sort((a,b)=>b.rank-a.rank).map(p => {
                 const i = players.findIndex(x=>x.name===p.name);
-                return `<div class="player-card"><div class="player-info"><img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}"><span class="player-name">${p.name}</span><select class="rank-select-inline" onchange="updatePlayerRank(${i},this.value)">${generateRankOptions(p.rank)}</select></div><button class="btn-delete" onclick="deletePlayer(${i})">✕</button></div>`;
+                return `<div class="player-card">
+                    <div class="player-info">
+                        <span class="player-name">${p.name}</span>
+                    </div>
+                    <div class="player-actions">
+                        <img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
+                        <select class="rank-select-inline" onchange="updatePlayerRank(${i},this.value)">${generateRankOptions(p.rank)}</select>
+                        <button class="btn-delete" onclick="deletePlayer(${i})">✕</button>
+                    </div>
+                </div>`;
             }).join('');
         }
         function renderBench() {
