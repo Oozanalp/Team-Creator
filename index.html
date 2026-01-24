@@ -401,11 +401,11 @@
         // UPDATED: Centralized CS2 Rank Icons (Official SVGs)
         // Source: SteamDatabase GameTracking (Official Game Files)
         // ==========================================================
-const RANK_ICONS = {};
-for (let i = 1; i <= 18; i++) {
-    // CDN kullanarak "image/svg+xml" hatasını çözüyoruz:
-    RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/SteamDatabase/GameTracking-CS2/csgo/pak01_dir/resource/flash/econ/status_icons/skillgroup${i}.svg`;
-}
+        const RANK_ICONS = {};
+        for (let i = 1; i <= 18; i++) {
+            // Web uyumlu, temizlenmiş PNG versiyonları
+            RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/DorCoMaNdO/CS2-Rank-Icons/png/skillgroup${i}.png`;
+        }
 
         const CS2_RANKS = {
             1: {name: 'Silver I', short: 'S1', group: 'Silver'},
