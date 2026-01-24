@@ -79,8 +79,8 @@
             text-align: left;
         }
         .main-rank-btn:hover { background: var(--discord-light-gray); border-radius: 4px; }
-        /* Updated Icon Size for better SVG display */
-        .main-rank-btn img { width: 42px; height: auto; flex-shrink: 0; } 
+        /* PNG adjustment */
+        .main-rank-btn img { width: auto; height: 32px; flex-shrink: 0; } 
         .main-rank-btn .rank-name { flex: 1; }
         .main-rank-btn .arrow { font-size: 10px; color: var(--discord-text-muted); }
         
@@ -134,8 +134,8 @@
         }
         
         /* Updated Icon Sizes for Lists */
-        .rank-icon { width: 36px; height: auto; flex-shrink: 0; }
-        .rank-icon-small { width: 28px; height: auto; flex-shrink: 0; }
+        .rank-icon { width: auto; height: 28px; flex-shrink: 0; }
+        .rank-icon-small { width: auto; height: 22px; flex-shrink: 0; }
         
         .btn-delete { 
             background: transparent; 
@@ -231,7 +231,7 @@
         }
         .rank-dropdown-btn:hover { background: var(--discord-lighter-gray); }
         /* Dropdown button icon size */
-        .rank-dropdown-btn img { width: 22px; height: auto; }
+        .rank-dropdown-btn img { width: auto; height: 18px; }
         
         /* Fixed position dropdown overlay */
         .rank-dropdown-overlay {
@@ -284,7 +284,7 @@
         }
         .rank-dropdown-item:hover { background: var(--discord-blurple); }
         /* Dropdown list icon size */
-        .rank-dropdown-item img { width: 32px; height: auto; flex-shrink: 0; }
+        .rank-dropdown-item img { width: auto; height: 26px; flex-shrink: 0; }
         .rank-dropdown-item .rank-short { 
             font-weight: 700; 
             min-width: 40px;
@@ -398,12 +398,12 @@
     
     <script>
         // ==========================================================
-        // UPDATED: Centralized CS2 Rank Icons (Official SVGs)
-        // Source: SteamDatabase GameTracking (Official Game Files)
+        // UPDATED: Centralized CS2 Rank Icons (PNG Format)
+        // Switch to PNG to prevent "Corrupted File" SVG issues locally
         // ==========================================================
         const RANK_ICONS = {};
         for (let i = 1; i <= 18; i++) {
-            // Web uyumlu, temizlenmiş PNG versiyonları
+            // Using a reliable CDN that hosts web-ready PNGs for CS2 ranks
             RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/DorCoMaNdO/CS2-Rank-Icons/png/skillgroup${i}.png`;
         }
 
@@ -786,7 +786,7 @@
                         </div>
                         <div class="bench-item-actions">
                             <button class="rank-dropdown-btn" onclick="openBenchRankDropdown('${p.id}', this, ${p.rank})" style="padding:2px 6px;">
-                                <img src="${RANK_ICONS[p.rank]}" style="width:16px;height:16px;">
+                                <img src="${RANK_ICONS[p.rank]}" style="width:auto;height:16px;">
                                 <span style="font-size:10px;">${CS2_RANKS[p.rank].short}</span>
                             </button>
                             <button class="btn-bench-remove" onclick="removeFromBench('${p.id}')">✕</button>
