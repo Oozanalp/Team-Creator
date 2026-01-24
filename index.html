@@ -676,16 +676,40 @@
             document.getElementById('selectedCount').textContent = count > 0 ? `${count} selected` : '';
         }
 
-        function updatePlayerRank(playerId, newRank) {
-            if (db) {
-                db.ref('players/' + playerId).update({rank: parseInt(newRank)});
-            } else {
-                const p = players.find(x => x.id === playerId);
-                if (p) p.rank = parseInt(newRank);
-                localStorage.setItem('players_1egit', JSON.stringify(players));
-                renderPlayers();
-            }
-        }
+function updatePlayerRank(playerId, newRank) {
+    const player = players.find(x => x.id === playerId);
+    if (!player) return;
+
+    const nameToUpdate = player.name;
+
+    if (db) {
+        // Firebase üzerinde aynı isme sahip tüm kayıtları bul ve güncelle
+        // Not: Firebase'de kompleks sorgular yerine her iki tabloyu güncellemek en güvenlisidir
+        db.ref('players').once('value', snapshot => {
+            snapshot.forEach(child => {
+                if (child.val().name === nameToUpdate) {
+                    db.ref('players/' + child.key).update({rank: parseInt(newRank)});
+                }
+            });
+        });
+        db.ref('bench').once('value', snapshot => {
+            snapshot.forEach(child => {
+                if (child.val().name === nameToUpdate) {
+                    db.ref('bench/' + child.key).update({rank: parseInt(newRank)});
+                }
+            });
+        });
+    } else {
+        // Yerel depolama güncelleniyor
+        players.forEach(p => { if(p.name === nameToUpdate) p.rank = parseInt(newRank); });
+        bench.forEach(b => { if(b.name === nameToUpdate) b.rank = parseInt(newRank); });
+        
+        localStorage.setItem('players_1egit', JSON.stringify(players));
+        localStorage.setItem('bench_1egit', JSON.stringify(bench));
+        renderPlayers();
+        renderBench();
+    }
+}
 
         function deletePlayer(playerId) {
             const p = players.find(x => x.id === playerId);
@@ -718,16 +742,39 @@
             }
         }
 
-        function updateBenchRank(benchId, newRank) {
-            if (db) {
-                db.ref('bench/' + benchId).update({rank: parseInt(newRank)});
-            } else {
-                const b = bench.find(x => x.id === benchId);
-                if (b) b.rank = parseInt(newRank);
-                localStorage.setItem('bench_1egit', JSON.stringify(bench));
-                renderBench();
-            }
-        }
+function updateBenchRank(benchId, newRank) {
+    const benchPlayer = bench.find(x => x.id === benchId);
+    if (!benchPlayer) return;
+
+    const nameToUpdate = benchPlayer.name;
+
+    if (db) {
+        // Firebase senkronizasyonu
+        db.ref('players').once('value', snapshot => {
+            snapshot.forEach(child => {
+                if (child.val().name === nameToUpdate) {
+                    db.ref('players/' + child.key).update({rank: parseInt(newRank)});
+                }
+            });
+        });
+        db.ref('bench').once('value', snapshot => {
+            snapshot.forEach(child => {
+                if (child.val().name === nameToUpdate) {
+                    db.ref('bench/' + child.key).update({rank: parseInt(newRank)});
+                }
+            });
+        });
+    } else {
+        // Yerel depolama senkronizasyonu
+        players.forEach(p => { if(p.name === nameToUpdate) p.rank = parseInt(newRank); });
+        bench.forEach(b => { if(b.name === nameToUpdate) b.rank = parseInt(newRank); });
+
+        localStorage.setItem('players_1egit', JSON.stringify(players));
+        localStorage.setItem('bench_1egit', JSON.stringify(bench));
+        renderPlayers();
+        renderBench();
+    }
+}
 
         function removeFromBench(benchId) {
             if (db) {
