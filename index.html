@@ -51,26 +51,58 @@
         .add-player-form { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-end; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group.name-group { flex: 2; min-width: 180px; }
-        .form-group.rank-group { flex: 1.5; min-width: 200px; }
+        .form-group.rank-group { flex: 1.5; min-width: 240px; }
         .form-group label { font-size: 12px; margin-bottom: 0; }
         input[type="text"] { padding: 10px 12px; border: none; border-radius: 4px; font-size: 16px; background: var(--discord-darker); color: var(--discord-text); }
         input[type="text"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
         input[type="text"]::placeholder { color: var(--discord-text-faint); }
-        .rank-select-wrapper { display: flex; align-items: center; background: var(--discord-darker); border-radius: 4px; padding-left: 8px; height: 42px; }
-        .rank-select-wrapper .rank-icon { width: 28px; height: 28px; flex-shrink: 0; }
-        .rank-select-wrapper select { flex: 1; padding: 10px 8px; border: none; background: transparent; color: var(--discord-text); cursor: pointer; font-size: 14px; }
-        select { padding: 10px 12px; border: none; border-radius: 4px; font-size: 14px; background: var(--discord-darker); color: var(--discord-text); cursor: pointer; }
-        select:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
-        .btn-add { padding: 10px 20px; background: var(--discord-blurple); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; height: 42px; }
+        
+        /* Main Rank Selector for Add Player */
+        .main-rank-selector {
+            position: relative;
+            background: var(--discord-darker);
+            border-radius: 4px;
+            height: 42px;
+        }
+        .main-rank-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 12px;
+            height: 100%;
+            width: 100%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--discord-text);
+            font-size: 14px;
+            text-align: left;
+        }
+        .main-rank-btn:hover { background: var(--discord-light-gray); border-radius: 4px; }
+        .main-rank-btn img { width: 28px; height: 28px; flex-shrink: 0; }
+        .main-rank-btn .rank-name { flex: 1; }
+        .main-rank-btn .arrow { font-size: 10px; color: var(--discord-text-muted); }
+        
+        .btn-add { padding: 10px 20px; background: var(--discord-blurple); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; height: 42px; flex-shrink: 0; }
         .btn-add:hover { background: var(--discord-blurple-hover); }
         .players-list { margin-top: 20px; margin-bottom: 16px; }
         .players-list h3 { color: var(--discord-white); margin-bottom: 12px; font-size: 1em; font-weight: 600; }
-        #playersContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; max-height: 350px; overflow-y: auto; padding: 8px; background: var(--discord-darker); border-radius: 4px; }
+        
+        #playersContainer { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 8px; 
+            max-height: 350px; 
+            overflow-y: auto; 
+            overflow-x: visible;
+            padding: 8px; 
+            background: var(--discord-darker); 
+            border-radius: 4px; 
+        }
         #playersContainer::-webkit-scrollbar { width: 8px; }
         #playersContainer::-webkit-scrollbar-track { background: var(--discord-darker); }
         #playersContainer::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
         
-        /* Player Card - Fixed Layout */
         .player-card { 
             background: var(--discord-light-gray); 
             padding: 10px 12px; 
@@ -103,21 +135,21 @@
         .rank-icon { width: 28px; height: 28px; flex-shrink: 0; }
         .rank-icon-small { width: 22px; height: 22px; flex-shrink: 0; }
         
-        .rank-select-inline { 
-            padding: 4px 6px; 
+        .btn-delete { 
+            background: transparent; 
             border: none; 
+            color: var(--discord-red); 
+            cursor: pointer; 
+            font-size: 18px; 
+            padding: 4px; 
+            width: 28px; 
+            height: 28px; 
             border-radius: 4px; 
-            font-size: 11px; 
-            font-weight: 600; 
-            background: var(--discord-darker); 
-            color: var(--discord-text); 
-            cursor: pointer;
-            width: 60px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-shrink: 0; 
         }
-        .rank-select-inline:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
-        
-        .rank-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-lighter-gray); color: var(--discord-text); }
-        .btn-delete { background: transparent; border: none; color: var(--discord-red); cursor: pointer; font-size: 18px; padding: 4px; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-delete:hover { background: rgba(218, 55, 60, 0.1); }
         .empty-state { text-align: center; padding: 32px; color: var(--discord-text-faint); font-size: 14px; grid-column: 1 / -1; }
         .settings { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
@@ -125,10 +157,10 @@
         input[type="number"] { width: 100%; padding: 10px 12px; border: none; border-radius: 4px; font-size: 16px; background: var(--discord-darker); color: var(--discord-text); }
         input[type="number"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
         .button-group { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-        button { flex: 1; padding: 12px 24px; font-size: 14px; font-weight: 500; border: none; border-radius: 4px; cursor: pointer; min-width: 140px; }
-        .btn-primary { background: var(--discord-blurple); color: white; }
+        button { padding: 12px 24px; font-size: 14px; font-weight: 500; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: var(--discord-blurple); color: white; flex: 1; min-width: 140px; }
         .btn-primary:hover { background: var(--discord-blurple-hover); }
-        .btn-secondary { background: transparent; color: var(--discord-red); border: 1px solid var(--discord-red); }
+        .btn-secondary { background: transparent; color: var(--discord-red); border: 1px solid var(--discord-red); flex: 1; min-width: 140px; }
         .btn-secondary:hover { background: rgba(218, 55, 60, 0.1); }
         .results { margin-top: 24px; display: none; }
         .results.active { display: block; }
@@ -164,7 +196,7 @@
         .bench-actions button { flex: 1; padding: 8px 12px; font-size: 12px; min-width: auto; }
         .btn-green { background: var(--discord-green); color: white; border: none; }
         .btn-green:hover { filter: brightness(0.9); }
-        .bench-list { flex: 1; overflow-y: auto; min-height: 200px; }
+        .bench-list { flex: 1; overflow-y: auto; overflow-x: visible; min-height: 200px; }
         .bench-list::-webkit-scrollbar { width: 6px; }
         .bench-list::-webkit-scrollbar-track { background: var(--discord-darker); }
         .bench-list::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
@@ -173,14 +205,14 @@
         .bench-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--discord-blurple); flex-shrink: 0; }
         .bench-item-info { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
         .bench-item-name { color: var(--discord-text); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .bench-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+        .bench-item-actions { display: flex; gap: 4px; flex-shrink: 0; align-items: center; }
         .btn-bench-remove { background: transparent; color: var(--discord-red); border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 14px; min-width: auto; }
         .btn-bench-remove:hover { background: rgba(218, 55, 60, 0.1); }
         .shuffle-info { font-size: 11px; color: var(--discord-text-faint); margin-top: 8px; font-style: italic; }
         .selected-count { font-size: 12px; color: var(--discord-green); margin-bottom: 8px; }
+        .rank-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-lighter-gray); color: var(--discord-text); }
         
-        /* Custom Rank Dropdown */
-        .rank-dropdown-container { position: relative; }
+        /* ===== RANK DROPDOWN - FIXED POSITION ===== */
         .rank-dropdown-btn {
             display: flex;
             align-items: center;
@@ -191,38 +223,74 @@
             border-radius: 4px;
             cursor: pointer;
             color: var(--discord-text);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            min-width: 80px;
+            white-space: nowrap;
         }
         .rank-dropdown-btn:hover { background: var(--discord-lighter-gray); }
         .rank-dropdown-btn img { width: 20px; height: 20px; }
-        .rank-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--discord-dark);
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 1000;
+        
+        /* Fixed position dropdown overlay */
+        .rank-dropdown-overlay {
             display: none;
-            min-width: 180px;
-            max-height: 300px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9998;
+        }
+        .rank-dropdown-overlay.open { display: block; }
+        
+        .rank-dropdown-menu {
+            position: fixed;
+            background: var(--discord-dark);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            z-index: 9999;
+            display: none;
+            width: 220px;
+            max-height: 400px;
             overflow-y: auto;
+            border: 1px solid var(--discord-lighter-gray);
         }
         .rank-dropdown-menu.open { display: block; }
+        .rank-dropdown-menu::-webkit-scrollbar { width: 8px; }
+        .rank-dropdown-menu::-webkit-scrollbar-track { background: var(--discord-darker); border-radius: 0 8px 8px 0; }
+        .rank-dropdown-menu::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
+        
+        .rank-dropdown-group { padding: 8px 0; }
+        .rank-dropdown-group:not(:last-child) { border-bottom: 1px solid var(--discord-lighter-gray); }
+        .rank-dropdown-group-label { 
+            padding: 4px 12px 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--discord-text-muted); 
+            text-transform: uppercase;
+        }
+        
         .rank-dropdown-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             padding: 8px 12px;
             cursor: pointer;
             color: var(--discord-text);
             font-size: 13px;
+            transition: background 0.1s;
         }
-        .rank-dropdown-item:hover { background: var(--discord-lighter-gray); }
-        .rank-dropdown-item img { width: 24px; height: 24px; }
+        .rank-dropdown-item:hover { background: var(--discord-blurple); }
+        .rank-dropdown-item img { width: 28px; height: 28px; flex-shrink: 0; }
+        .rank-dropdown-item .rank-short { 
+            font-weight: 700; 
+            min-width: 40px;
+        }
+        .rank-dropdown-item .rank-full { 
+            color: var(--discord-text-muted);
+            font-size: 12px;
+        }
         .rank-dropdown-item.selected { background: var(--discord-blurple); }
+        .rank-dropdown-item.selected .rank-full { color: rgba(255,255,255,0.8); }
         
         @media (max-width: 900px) {
             .page-wrapper { flex-direction: column; }
@@ -240,15 +308,16 @@
             .add-player-form { flex-direction: column; gap: 10px; }
             .form-group.name-group, .form-group.rank-group { min-width: 100%; }
             .btn-add { width: 100%; height: 44px; }
-            #playersContainer { grid-template-columns: 1fr; max-height: 280px; }
+            #playersContainer { grid-template-columns: 1fr; max-height: 300px; }
             .player-card { padding: 10px; }
             .settings { flex-direction: column; gap: 12px; }
             .button-group { flex-direction: column; gap: 10px; }
-            button { width: 100%; padding: 14px; min-width: auto; }
+            .btn-primary, .btn-secondary { width: 100%; min-width: auto; }
             .teams-wrapper { flex-direction: column; }
             .team { min-width: 100%; }
             .copy-btn { width: 100%; padding: 14px; }
             .bench-panel { padding: 14px; margin-bottom: 10px; }
+            .rank-dropdown-menu { width: 200px; max-height: 350px; }
         }
     </style>
 </head>
@@ -273,10 +342,14 @@
                         </div>
                         <div class="form-group rank-group">
                             <label>CS2 Rank</label>
-                            <div class="rank-select-wrapper">
-                                <img id="selectedRankIcon" class="rank-icon" src="" alt="Rank">
-                                <select id="playerRank" onchange="updateRankIcon()"></select>
+                            <div class="main-rank-selector">
+                                <button type="button" class="main-rank-btn" id="mainRankBtn" onclick="toggleMainRankDropdown(event)">
+                                    <img id="mainRankIcon" src="" alt="Rank">
+                                    <span class="rank-name" id="mainRankName">Gold Nova III</span>
+                                    <span class="arrow">▼</span>
+                                </button>
                             </div>
+                            <input type="hidden" id="playerRank" value="9">
                         </div>
                         <button class="btn-add" onclick="addPlayer()">+ Add</button>
                     </div>
@@ -312,6 +385,12 @@
         </div>
     </div>
 
+    <!-- Dropdown Overlay (closes dropdown when clicking outside) -->
+    <div class="rank-dropdown-overlay" id="dropdownOverlay" onclick="closeAllDropdowns()"></div>
+    
+    <!-- Global Dropdown Menu (positioned with JS) -->
+    <div class="rank-dropdown-menu" id="globalRankMenu"></div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -324,25 +403,32 @@
         }
 
         const CS2_RANKS = {
-            1: {name: 'Silver I', short: 'S1'},
-            2: {name: 'Silver II', short: 'S2'},
-            3: {name: 'Silver III', short: 'S3'},
-            4: {name: 'Silver IV', short: 'S4'},
-            5: {name: 'Silver Elite', short: 'SE'},
-            6: {name: 'Silver Elite Master', short: 'SEM'},
-            7: {name: 'Gold Nova I', short: 'GN1'},
-            8: {name: 'Gold Nova II', short: 'GN2'},
-            9: {name: 'Gold Nova III', short: 'GN3'},
-            10: {name: 'Gold Nova Master', short: 'GNM'},
-            11: {name: 'Master Guardian I', short: 'MG1'},
-            12: {name: 'Master Guardian II', short: 'MG2'},
-            13: {name: 'Master Guardian Elite', short: 'MGE'},
-            14: {name: 'Distinguished Master Guardian', short: 'DMG'},
-            15: {name: 'Legendary Eagle', short: 'LE'},
-            16: {name: 'Legendary Eagle Master', short: 'LEM'},
-            17: {name: 'Supreme Master First Class', short: 'SMFC'},
-            18: {name: 'Global Elite', short: 'GE'}
+            1: {name: 'Silver I', short: 'S1', group: 'Silver'},
+            2: {name: 'Silver II', short: 'S2', group: 'Silver'},
+            3: {name: 'Silver III', short: 'S3', group: 'Silver'},
+            4: {name: 'Silver IV', short: 'S4', group: 'Silver'},
+            5: {name: 'Silver Elite', short: 'SE', group: 'Silver'},
+            6: {name: 'Silver Elite Master', short: 'SEM', group: 'Silver'},
+            7: {name: 'Gold Nova I', short: 'GN1', group: 'Gold Nova'},
+            8: {name: 'Gold Nova II', short: 'GN2', group: 'Gold Nova'},
+            9: {name: 'Gold Nova III', short: 'GN3', group: 'Gold Nova'},
+            10: {name: 'Gold Nova Master', short: 'GNM', group: 'Gold Nova'},
+            11: {name: 'Master Guardian I', short: 'MG1', group: 'Master Guardian'},
+            12: {name: 'Master Guardian II', short: 'MG2', group: 'Master Guardian'},
+            13: {name: 'Master Guardian Elite', short: 'MGE', group: 'Master Guardian'},
+            14: {name: 'DMG', short: 'DMG', group: 'Master Guardian'},
+            15: {name: 'Legendary Eagle', short: 'LE', group: 'Elite'},
+            16: {name: 'Legendary Eagle Master', short: 'LEM', group: 'Elite'},
+            17: {name: 'Supreme', short: 'SMFC', group: 'Elite'},
+            18: {name: 'Global Elite', short: 'GE', group: 'Elite'}
         };
+
+        const RANK_GROUPS = [
+            {label: 'Silver', ranks: [1,2,3,4,5,6]},
+            {label: 'Gold Nova', ranks: [7,8,9,10]},
+            {label: 'Master Guardian', ranks: [11,12,13,14]},
+            {label: 'Elite', ranks: [15,16,17,18]}
+        ];
 
         const firebaseConfig = {
             apiKey: "AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",
@@ -360,63 +446,124 @@
         let currentTeams = [];
         let shuffleCount = 0;
         let selectedForSwap = null;
-        let openDropdown = null;
+        let currentDropdownCallback = null;
 
-        // Initialize when page loads
+        // Initialize
         window.onload = function() {
-            // Initialize Firebase
             if (typeof firebase !== 'undefined') {
                 try {
                     firebase.initializeApp(firebaseConfig);
                     db = firebase.database();
-                    console.log('Firebase connected successfully');
+                    console.log('Firebase connected');
                 } catch (e) {
-                    console.error('Firebase init error:', e);
+                    console.error('Firebase error:', e);
                 }
-            } else {
-                console.log('Firebase SDK not loaded, using localStorage');
             }
 
-            initRankDropdowns();
+            // Set initial main rank selector
+            setMainRankDisplay(9);
             loadData();
 
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.rank-dropdown-container')) {
-                    closeAllDropdowns();
-                }
-            });
-
-            // Enter key handlers
-            document.getElementById('playerName').addEventListener('keypress', function(e) {
+            document.getElementById('playerName').addEventListener('keypress', e => {
                 if (e.key === 'Enter') addPlayer();
             });
-            document.getElementById('benchName').addEventListener('keypress', function(e) {
+            document.getElementById('benchName').addEventListener('keypress', e => {
                 if (e.key === 'Enter') addToBench();
             });
         };
 
-        function initRankDropdowns() {
-            const mainSelect = document.getElementById('playerRank');
-            const groups = [
-                {label: 'Silver', ranks: [1,2,3,4,5,6]},
-                {label: 'Gold Nova', ranks: [7,8,9,10]},
-                {label: 'Master Guardian', ranks: [11,12,13,14]},
-                {label: 'Elite', ranks: [15,16,17,18]}
-            ];
-            
-            mainSelect.innerHTML = groups.map(g => 
-                `<optgroup label="${g.label}">${g.ranks.map(r => 
-                    `<option value="${r}" ${r === 9 ? 'selected' : ''}>${CS2_RANKS[r].name}</option>`
-                ).join('')}</optgroup>`
-            ).join('');
-
-            document.getElementById('selectedRankIcon').src = RANK_ICONS[9];
+        function setMainRankDisplay(rank) {
+            document.getElementById('mainRankIcon').src = RANK_ICONS[rank];
+            document.getElementById('mainRankName').textContent = CS2_RANKS[rank].name;
+            document.getElementById('playerRank').value = rank;
         }
 
-        function updateRankIcon() {
-            const rank = parseInt(document.getElementById('playerRank').value);
-            document.getElementById('selectedRankIcon').src = RANK_ICONS[rank];
+        function buildRankMenuHTML(selectedRank, onSelectFn) {
+            let html = '';
+            RANK_GROUPS.forEach(group => {
+                html += `<div class="rank-dropdown-group">`;
+                html += `<div class="rank-dropdown-group-label">${group.label}</div>`;
+                group.ranks.forEach(r => {
+                    const rank = CS2_RANKS[r];
+                    const isSelected = r === selectedRank;
+                    html += `
+                        <div class="rank-dropdown-item ${isSelected ? 'selected' : ''}" onclick="${onSelectFn}(${r})">
+                            <img src="${RANK_ICONS[r]}" alt="${rank.name}">
+                            <span class="rank-short">${rank.short}</span>
+                            <span class="rank-full">${rank.name}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            });
+            return html;
+        }
+
+        function showDropdownAt(btnElement, selectedRank, callback) {
+            const menu = document.getElementById('globalRankMenu');
+            const overlay = document.getElementById('dropdownOverlay');
+            const rect = btnElement.getBoundingClientRect();
+            
+            // Store callback
+            currentDropdownCallback = callback;
+            
+            // Build menu
+            menu.innerHTML = buildRankMenuHTML(selectedRank, 'handleRankSelect');
+            
+            // Position menu
+            let top = rect.bottom + 4;
+            let left = rect.left;
+            
+            // Check if menu would go off screen bottom
+            const menuHeight = 400;
+            if (top + menuHeight > window.innerHeight) {
+                top = rect.top - menuHeight - 4;
+                if (top < 0) top = 10;
+            }
+            
+            // Check right edge
+            if (left + 220 > window.innerWidth) {
+                left = window.innerWidth - 230;
+            }
+            
+            menu.style.top = top + 'px';
+            menu.style.left = left + 'px';
+            
+            menu.classList.add('open');
+            overlay.classList.add('open');
+        }
+
+        function handleRankSelect(rank) {
+            if (currentDropdownCallback) {
+                currentDropdownCallback(rank);
+            }
+            closeAllDropdowns();
+        }
+
+        function closeAllDropdowns() {
+            document.getElementById('globalRankMenu').classList.remove('open');
+            document.getElementById('dropdownOverlay').classList.remove('open');
+            currentDropdownCallback = null;
+        }
+
+        function toggleMainRankDropdown(event) {
+            event.stopPropagation();
+            const currentRank = parseInt(document.getElementById('playerRank').value);
+            showDropdownAt(event.currentTarget, currentRank, (rank) => {
+                setMainRankDisplay(rank);
+            });
+        }
+
+        function openPlayerRankDropdown(playerId, btnElement, currentRank) {
+            showDropdownAt(btnElement, currentRank, (rank) => {
+                updatePlayerRank(playerId, rank);
+            });
+        }
+
+        function openBenchRankDropdown(benchId, btnElement, currentRank) {
+            showDropdownAt(btnElement, currentRank, (rank) => {
+                updateBenchRank(benchId, rank);
+            });
         }
 
         function loadData() {
@@ -447,22 +594,16 @@
 
         function addPlayer() {
             const nameInput = document.getElementById('playerName');
-            const rankSelect = document.getElementById('playerRank');
             const name = nameInput.value.trim();
-            const rank = parseInt(rankSelect.value);
+            const rank = parseInt(document.getElementById('playerRank').value);
 
-            if (!name) {
-                showError('Please enter a player name!');
-                return;
-            }
-
+            if (!name) { showError('Please enter a player name!'); return; }
             if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                showError('Player already active!');
-                return;
+                showError('Player already active!'); return;
             }
 
             if (db) {
-                db.ref('players').push().set({name: name, rank: rank});
+                db.ref('players').push().set({name, rank});
             } else {
                 players.push({name, rank, id: 'local_' + Date.now()});
                 localStorage.setItem('players_1egit', JSON.stringify(players));
@@ -470,8 +611,6 @@
             }
 
             nameInput.value = '';
-            rankSelect.value = '9';
-            updateRankIcon();
             nameInput.focus();
             hideError();
         }
@@ -481,14 +620,12 @@
             const name = nameInput.value.trim();
 
             if (!name) return;
-
             if (bench.some(b => b.name.toLowerCase() === name.toLowerCase())) {
-                showError('Already on bench!');
-                return;
+                showError('Already on bench!'); return;
             }
 
             if (db) {
-                db.ref('bench').push().set({name: name, rank: 9});
+                db.ref('bench').push().set({name, rank: 9});
             } else {
                 bench.push({name, rank: 9, id: 'local_' + Date.now()});
                 localStorage.setItem('bench_1egit', JSON.stringify(bench));
@@ -501,10 +638,7 @@
 
         function addSelectedToActive() {
             const checkboxes = document.querySelectorAll('.bench-checkbox:checked');
-            if (checkboxes.length === 0) {
-                showError('No players selected!');
-                return;
-            }
+            if (checkboxes.length === 0) { showError('No players selected!'); return; }
 
             checkboxes.forEach(cb => {
                 const benchId = cb.dataset.id;
@@ -527,41 +661,15 @@
         }
 
         function selectAllBench() {
-            const checkboxes = document.querySelectorAll('.bench-checkbox:not(:disabled)');
-            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-            checkboxes.forEach(cb => cb.checked = !allChecked);
+            const cbs = document.querySelectorAll('.bench-checkbox:not(:disabled)');
+            const allChecked = Array.from(cbs).every(c => c.checked);
+            cbs.forEach(c => c.checked = !allChecked);
             updateSelectedCount();
         }
 
         function updateSelectedCount() {
             const count = document.querySelectorAll('.bench-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count > 0 ? `${count} selected` : '';
-        }
-
-        function toggleRankDropdown(playerId, event) {
-            event.stopPropagation();
-            const menu = document.getElementById('rank-menu-' + playerId);
-            
-            if (openDropdown && openDropdown !== menu) {
-                openDropdown.classList.remove('open');
-            }
-            
-            menu.classList.toggle('open');
-            openDropdown = menu.classList.contains('open') ? menu : null;
-        }
-
-        function closeAllDropdowns() {
-            document.querySelectorAll('.rank-dropdown-menu').forEach(m => m.classList.remove('open'));
-            openDropdown = null;
-        }
-
-        function selectRank(playerId, newRank, type) {
-            closeAllDropdowns();
-            if (type === 'player') {
-                updatePlayerRank(playerId, newRank);
-            } else {
-                updateBenchRank(playerId, newRank);
-            }
         }
 
         function updatePlayerRank(playerId, newRank) {
@@ -590,10 +698,7 @@
         }
 
         function clearAllPlayers() {
-            if (players.length === 0) {
-                showError('No active players!');
-                return;
-            }
+            if (players.length === 0) { showError('No active players!'); return; }
             if (confirm('Clear all active players?')) {
                 if (db) {
                     db.ref('players').remove();
@@ -630,32 +735,6 @@
             }
         }
 
-        function createRankDropdown(id, currentRank, type) {
-            const rankData = CS2_RANKS[currentRank];
-            let menuItems = '';
-            for (let i = 1; i <= 18; i++) {
-                const r = CS2_RANKS[i];
-                menuItems += `
-                    <div class="rank-dropdown-item ${i === currentRank ? 'selected' : ''}" onclick="selectRank('${id}', ${i}, '${type}')">
-                        <img src="${RANK_ICONS[i]}" alt="${r.name}">
-                        <span>${r.short} - ${r.name}</span>
-                    </div>
-                `;
-            }
-            
-            return `
-                <div class="rank-dropdown-container">
-                    <button class="rank-dropdown-btn" onclick="toggleRankDropdown('${id}', event)">
-                        <img src="${RANK_ICONS[currentRank]}" alt="${rankData.name}">
-                        <span>${rankData.short}</span>
-                    </button>
-                    <div class="rank-dropdown-menu" id="rank-menu-${id}">
-                        ${menuItems}
-                    </div>
-                </div>
-            `;
-        }
-
         function renderPlayers() {
             const container = document.getElementById('playersContainer');
             document.getElementById('playerCount').textContent = players.length;
@@ -671,7 +750,10 @@
                     <span class="player-name">${p.name}</span>
                     <div class="player-actions">
                         <img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
-                        ${createRankDropdown(p.id, p.rank, 'player')}
+                        <button class="rank-dropdown-btn" onclick="openPlayerRankDropdown('${p.id}', this, ${p.rank})">
+                            <span>${CS2_RANKS[p.rank].short}</span>
+                            <span style="font-size:10px;">▼</span>
+                        </button>
                         <button class="btn-delete" onclick="deletePlayer('${p.id}')">✕</button>
                     </div>
                 </div>
@@ -698,7 +780,10 @@
                             <span class="bench-item-name" ${isActive ? 'style="color:var(--discord-green);"' : ''}>${p.name}</span>
                         </div>
                         <div class="bench-item-actions">
-                            ${createRankDropdown(p.id, p.rank, 'bench')}
+                            <button class="rank-dropdown-btn" onclick="openBenchRankDropdown('${p.id}', this, ${p.rank})" style="padding:2px 6px;">
+                                <img src="${RANK_ICONS[p.rank]}" style="width:16px;height:16px;">
+                                <span style="font-size:10px;">${CS2_RANKS[p.rank].short}</span>
+                            </button>
                             <button class="btn-bench-remove" onclick="removeFromBench('${p.id}')">✕</button>
                         </div>
                     </div>
@@ -709,21 +794,16 @@
 
         function createTeams() {
             hideError();
-            if (players.length === 0) {
-                showError('Add players first!');
-                return;
-            }
+            if (players.length === 0) { showError('Add players first!'); return; }
 
             const teamCount = parseInt(document.getElementById('teamCount').value);
             if (teamCount < 2 || teamCount > players.length) {
-                showError(`Teams must be between 2 and ${players.length}`);
-                return;
+                showError(`Teams must be between 2 and ${players.length}`); return;
             }
 
             const ppt = parseInt(document.getElementById('playersPerTeam').value);
             if (ppt > 0 && ppt * teamCount > players.length) {
-                showError(`Need ${ppt * teamCount} players, have ${players.length}`);
-                return;
+                showError(`Need ${ppt * teamCount} players, have ${players.length}`); return;
             }
 
             shuffleCount++;
