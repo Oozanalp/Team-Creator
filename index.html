@@ -40,24 +40,9 @@
             margin: 0 auto;
             align-items: flex-start;
         }
-        .main-container {
-            flex: 1 1 auto;
-            min-width: 0;
-            max-width: calc(100% - 320px);
-        }
-        .container {
-            background: var(--discord-not-quite-black) !important;
-            border-radius: 8px;
-            padding: 32px;
-            position: relative;
-        }
-        .server-info {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            text-align: right;
-            font-family: 'Consolas', monospace;
-        }
+        .main-container { flex: 1 1 auto; min-width: 0; max-width: calc(100% - 320px); }
+        .container { background: var(--discord-not-quite-black) !important; border-radius: 8px; padding: 32px; position: relative; }
+        .server-info { position: absolute; top: 16px; right: 16px; text-align: right; font-family: 'Consolas', monospace; }
         .server-info .connect { color: var(--discord-green); font-size: 13px; font-weight: 600; }
         .server-info .password { color: var(--discord-yellow); font-size: 12px; margin-top: 2px; }
         .header { text-align: center; margin-bottom: 24px; }
@@ -157,6 +142,7 @@
         .btn-bench-remove:hover { background: rgba(218, 55, 60, 0.1); }
         .shuffle-info { font-size: 11px; color: var(--discord-text-faint); margin-top: 8px; font-style: italic; }
         .selected-count { font-size: 12px; color: var(--discord-green); margin-bottom: 8px; }
+        
         @media (max-width: 900px) {
             .page-wrapper { flex-direction: column; }
             .bench-panel { width: 100%; position: static; max-height: none; order: -1; }
@@ -244,12 +230,7 @@
                             <label for="playerRank">CS2 Rank</label>
                             <div class="rank-select-wrapper">
                                 <img id="selectedRankIcon" class="rank-icon" src="https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/9.png" alt="Rank">
-                                <select id="playerRank" onchange="updateRankIcon()">
-                                    <optgroup label="Silver"><option value="1">Silver I</option><option value="2">Silver II</option><option value="3">Silver III</option><option value="4">Silver IV</option><option value="5">Silver Elite</option><option value="6">Silver Elite Master</option></optgroup>
-                                    <optgroup label="Gold Nova"><option value="7">Gold Nova I</option><option value="8">Gold Nova II</option><option value="9" selected>Gold Nova III</option><option value="10">Gold Nova Master</option></optgroup>
-                                    <optgroup label="Master Guardian"><option value="11">Master Guardian I</option><option value="12">Master Guardian II</option><option value="13">Master Guardian Elite</option><option value="14">Distinguished Master Guardian</option></optgroup>
-                                    <optgroup label="Elite"><option value="15">Legendary Eagle</option><option value="16">Legendary Eagle Master</option><option value="17">Supreme Master First Class</option><option value="18">Global Elite</option></optgroup>
-                                </select>
+                                <select id="playerRank" onchange="updateRankIcon()"></select>
                             </div>
                         </div>
                         <button class="btn-add" onclick="addPlayer()">+ Add</button>
@@ -286,167 +267,533 @@
         </div>
     </div>
     <script>
-        const RANK_ICONS = {1:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/1.png',2:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/2.png',3:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/3.png',4:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/4.png',5:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/5.png',6:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/6.png',7:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/7.png',8:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/8.png',9:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/9.png',10:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/10.png',11:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/11.png',12:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/12.png',13:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/13.png',14:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/14.png',15:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/15.png',16:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/16.png',17:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/17.png',18:'https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/18.png'};
-        const CS2_RANKS = {1:{name:'Silver I',short:'S1'},2:{name:'Silver II',short:'S2'},3:{name:'Silver III',short:'S3'},4:{name:'Silver IV',short:'S4'},5:{name:'Silver Elite',short:'SE'},6:{name:'Silver Elite Master',short:'SEM'},7:{name:'Gold Nova I',short:'GN1'},8:{name:'Gold Nova II',short:'GN2'},9:{name:'Gold Nova III',short:'GN3'},10:{name:'Gold Nova Master',short:'GNM'},11:{name:'Master Guardian I',short:'MG1'},12:{name:'Master Guardian II',short:'MG2'},13:{name:'Master Guardian Elite',short:'MGE'},14:{name:'Distinguished Master Guardian',short:'DMG'},15:{name:'Legendary Eagle',short:'LE'},16:{name:'Legendary Eagle Master',short:'LEM'},17:{name:'Supreme Master First Class',short:'SMFC'},18:{name:'Global Elite',short:'GE'}};
-        const firebaseConfig = {apiKey:"AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",authDomain:"legit---team-creator.firebaseapp.com",databaseURL:"https://legit---team-creator-default-rtdb.europe-west1.firebasedatabase.app",projectId:"legit---team-creator",storageBucket:"legit---team-creator.firebasestorage.app",messagingSenderId:"475101153038",appId:"1:475101153038:web:a6a464384178890d60f95f"};
-        const useFirebase = true;
+        const RANK_ICONS = {};
+        for (let i = 1; i <= 18; i++) {
+            RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/${i}.png`;
+        }
+
+        const CS2_RANKS = {
+            1: {name: 'Silver I', short: 'S1'},
+            2: {name: 'Silver II', short: 'S2'},
+            3: {name: 'Silver III', short: 'S3'},
+            4: {name: 'Silver IV', short: 'S4'},
+            5: {name: 'Silver Elite', short: 'SE'},
+            6: {name: 'Silver Elite Master', short: 'SEM'},
+            7: {name: 'Gold Nova I', short: 'GN1'},
+            8: {name: 'Gold Nova II', short: 'GN2'},
+            9: {name: 'Gold Nova III', short: 'GN3'},
+            10: {name: 'Gold Nova Master', short: 'GNM'},
+            11: {name: 'Master Guardian I', short: 'MG1'},
+            12: {name: 'Master Guardian II', short: 'MG2'},
+            13: {name: 'Master Guardian Elite', short: 'MGE'},
+            14: {name: 'Distinguished Master Guardian', short: 'DMG'},
+            15: {name: 'Legendary Eagle', short: 'LE'},
+            16: {name: 'Legendary Eagle Master', short: 'LEM'},
+            17: {name: 'Supreme Master First Class', short: 'SMFC'},
+            18: {name: 'Global Elite', short: 'GE'}
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_BDlbY-uyUOKguX9q0NvgMMaNlpJEvRU",
+            authDomain: "legit---team-creator.firebaseapp.com",
+            databaseURL: "https://legit---team-creator-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "legit---team-creator",
+            storageBucket: "legit---team-creator.firebasestorage.app",
+            messagingSenderId: "475101153038",
+            appId: "1:475101153038:web:a6a464384178890d60f95f"
+        };
+
         let db = null;
-        if (useFirebase && typeof firebase !== 'undefined') { try { firebase.initializeApp(firebaseConfig); db = firebase.database(); } catch (e) { console.log('Firebase error:', e); } }
-        let players = [], bench = [], currentTeams = [], shuffleCount = 0, selectedForSwap = null;
-        window.onload = () => loadData();
-        function updateRankIcon() { document.getElementById('selectedRankIcon').src = RANK_ICONS[parseInt(document.getElementById('playerRank').value)]; }
-        function loadData() {
-            if (useFirebase && db) {
-                db.ref('players').on('value', s => { players = []; s.forEach(c => players.push({id: c.key, ...c.val()})); renderPlayers(); });
-                db.ref('bench').on('value', s => { bench = []; s.forEach(c => bench.push({id: c.key, ...c.val()})); renderBench(); });
-            } else { players = JSON.parse(localStorage.getItem('players_1egit')) || []; bench = JSON.parse(localStorage.getItem('bench_1egit')) || []; renderPlayers(); renderBench(); }
+        let players = [];
+        let bench = [];
+        let currentTeams = [];
+        let shuffleCount = 0;
+        let selectedForSwap = null;
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log('Firebase connected');
+        } catch (e) {
+            console.error('Firebase error:', e);
         }
-        function savePlayers() { if (useFirebase && db) { const o = {}; players.forEach((p,i) => o[p.id||i] = {name:p.name,rank:p.rank}); db.ref('players').set(o); } else localStorage.setItem('players_1egit', JSON.stringify(players)); }
-        function saveBench() { if (useFirebase && db) { const o = {}; bench.forEach((b,i) => o[b.id||i] = {name:b.name,rank:b.rank}); db.ref('bench').set(o); } else localStorage.setItem('bench_1egit', JSON.stringify(bench)); }
-        function addPlayer() {
-            const name = document.getElementById('playerName').value.trim();
+
+        window.onload = function() {
+            initRankDropdowns();
+            loadData();
+        };
+
+        function initRankDropdowns() {
+            const mainSelect = document.getElementById('playerRank');
+            mainSelect.innerHTML = generateRankOptionsWithIcons(9);
+        }
+
+        function generateRankOptionsWithIcons(selected) {
+            const groups = [
+                {label: 'Silver', ranks: [1,2,3,4,5,6]},
+                {label: 'Gold Nova', ranks: [7,8,9,10]},
+                {label: 'Master Guardian', ranks: [11,12,13,14]},
+                {label: 'Elite', ranks: [15,16,17,18]}
+            ];
+            
+            return groups.map(g => 
+                `<optgroup label="${g.label}">${g.ranks.map(r => 
+                    `<option value="${r}" ${r === selected ? 'selected' : ''}>${CS2_RANKS[r].name}</option>`
+                ).join('')}</optgroup>`
+            ).join('');
+        }
+
+        function generateRankOptions(selected) {
+            return Array.from({length: 18}, (_, i) => i + 1)
+                .map(i => `<option value="${i}" ${i === selected ? 'selected' : ''}>${CS2_RANKS[i].short}</option>`)
+                .join('');
+        }
+
+        function updateRankIcon() {
             const rank = parseInt(document.getElementById('playerRank').value);
-            if (!name) { showError('Please enter a player name!'); return; }
-            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) { showError('Already active!'); return; }
-            const newId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-            if (useFirebase && db) {
-                db.ref('players/' + newId).set({name: name, rank: rank});
+            document.getElementById('selectedRankIcon').src = RANK_ICONS[rank];
+        }
+
+        function loadData() {
+            if (db) {
+                // Listen for players
+                db.ref('players').on('value', snapshot => {
+                    players = [];
+                    snapshot.forEach(child => {
+                        players.push({id: child.key, ...child.val()});
+                    });
+                    renderPlayers();
+                    renderBench(); // Update bench to show active status
+                });
+
+                // Listen for bench
+                db.ref('bench').on('value', snapshot => {
+                    bench = [];
+                    snapshot.forEach(child => {
+                        bench.push({id: child.key, ...child.val()});
+                    });
+                    renderBench();
+                });
             } else {
-                players.push({name, rank, id: newId});
-                savePlayers();
+                players = JSON.parse(localStorage.getItem('players_1egit')) || [];
+                bench = JSON.parse(localStorage.getItem('bench_1egit')) || [];
                 renderPlayers();
-            }
-            document.getElementById('playerName').value = '';
-            document.getElementById('playerRank').value = '9';
-            updateRankIcon();
-            document.getElementById('error').classList.remove('active');
-        }
-        function addFromBench(i) {
-            const bp = bench[i];
-            if (players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) { showError('Already active!'); return; }
-            players.push({name: bp.name, rank: bp.rank, id: Date.now().toString()}); savePlayers(); renderPlayers(); renderBench();
-            document.getElementById('error').classList.remove('active');
-        }
-        function addSelectedToActive() {
-            const cbs = document.querySelectorAll('.bench-checkbox:checked');
-            if (!cbs.length) { showError('No players selected!'); return; }
-            let added = 0;
-            cbs.forEach(cb => { const bp = bench[parseInt(cb.dataset.index)]; if (!players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) { players.push({name: bp.name, rank: bp.rank, id: Date.now().toString() + added++}); } });
-            if (added) { savePlayers(); renderPlayers(); renderBench(); }
-            document.getElementById('error').classList.remove('active');
-        }
-        function selectAllBench() { const cbs = document.querySelectorAll('.bench-checkbox'); const all = Array.from(cbs).every(c => c.checked); cbs.forEach(c => c.checked = !all); updateSelectedCount(); }
-        function updateSelectedCount() { const n = document.querySelectorAll('.bench-checkbox:checked').length; document.getElementById('selectedCount').textContent = n ? `${n} selected` : ''; }
-        function updatePlayerRank(i, r) { players[i].rank = parseInt(r); savePlayers(); renderPlayers(); }
-        function deletePlayer(i) { if (confirm(`Remove ${players[i].name}?`)) { players.splice(i,1); savePlayers(); renderPlayers(); renderBench(); } }
-        function clearAllPlayers() { if (!players.length) { showError('No active players!'); return; } if (confirm('Clear all?')) { players = []; savePlayers(); renderPlayers(); renderBench(); document.getElementById('results').classList.remove('active'); shuffleCount = 0; currentTeams = []; } }
-        function addToBench() {
-            const name = document.getElementById('benchName').value.trim();
-            if (!name) return;
-            if (bench.some(b => b.name.toLowerCase() === name.toLowerCase())) { showError('Already on bench!'); return; }
-            const newId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-            if (useFirebase && db) {
-                db.ref('bench/' + newId).set({name: name, rank: 9});
-            } else {
-                bench.push({name, rank: 9, id: newId});
-                saveBench();
                 renderBench();
             }
-            document.getElementById('benchName').value = '';
-            document.getElementById('error').classList.remove('active');
         }
-        function updateBenchRank(i, r) { bench[i].rank = parseInt(r); saveBench(); renderBench(); }
-        function removeFromBench(i) { bench.splice(i,1); saveBench(); renderBench(); }
-        function generateRankOptions(sel) { return Array.from({length:18},(_,i)=>i+1).map(i=>`<option value="${i}" ${i===sel?'selected':''}>${CS2_RANKS[i].short}</option>`).join(''); }
+
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const rankSelect = document.getElementById('playerRank');
+            const name = nameInput.value.trim();
+            const rank = parseInt(rankSelect.value);
+
+            if (!name) {
+                showError('Please enter a player name!');
+                return;
+            }
+
+            // Check if already exists
+            const exists = players.some(p => p.name.toLowerCase() === name.toLowerCase());
+            if (exists) {
+                showError('Player already active!');
+                return;
+            }
+
+            if (db) {
+                // Use push() to generate unique key
+                const newRef = db.ref('players').push();
+                newRef.set({name: name, rank: rank});
+            } else {
+                players.push({name, rank, id: Date.now().toString()});
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+            }
+
+            nameInput.value = '';
+            rankSelect.value = '9';
+            updateRankIcon();
+            nameInput.focus();
+            hideError();
+        }
+
+        function addToBench() {
+            const nameInput = document.getElementById('benchName');
+            const name = nameInput.value.trim();
+
+            if (!name) return;
+
+            const exists = bench.some(b => b.name.toLowerCase() === name.toLowerCase());
+            if (exists) {
+                showError('Already on bench!');
+                return;
+            }
+
+            if (db) {
+                // Use push() to generate unique key
+                const newRef = db.ref('bench').push();
+                newRef.set({name: name, rank: 9});
+            } else {
+                bench.push({name, rank: 9, id: Date.now().toString()});
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+                renderBench();
+            }
+
+            nameInput.value = '';
+            hideError();
+        }
+
+        function addFromBench(benchId) {
+            const bp = bench.find(b => b.id === benchId);
+            if (!bp) return;
+
+            const exists = players.some(p => p.name.toLowerCase() === bp.name.toLowerCase());
+            if (exists) {
+                showError('Player already active!');
+                return;
+            }
+
+            if (db) {
+                const newRef = db.ref('players').push();
+                newRef.set({name: bp.name, rank: bp.rank});
+            } else {
+                players.push({name: bp.name, rank: bp.rank, id: Date.now().toString()});
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+                renderBench();
+            }
+            hideError();
+        }
+
+        function addSelectedToActive() {
+            const checkboxes = document.querySelectorAll('.bench-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showError('No players selected!');
+                return;
+            }
+
+            checkboxes.forEach(cb => {
+                const benchId = cb.dataset.id;
+                const bp = bench.find(b => b.id === benchId);
+                if (bp && !players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
+                    if (db) {
+                        const newRef = db.ref('players').push();
+                        newRef.set({name: bp.name, rank: bp.rank});
+                    } else {
+                        players.push({name: bp.name, rank: bp.rank, id: Date.now().toString()});
+                    }
+                }
+            });
+
+            if (!db) {
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+                renderBench();
+            }
+            hideError();
+        }
+
+        function selectAllBench() {
+            const checkboxes = document.querySelectorAll('.bench-checkbox:not(:disabled)');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const count = document.querySelectorAll('.bench-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = count > 0 ? `${count} selected` : '';
+        }
+
+        function updatePlayerRank(playerId, newRank) {
+            if (db) {
+                db.ref('players/' + playerId).update({rank: parseInt(newRank)});
+            } else {
+                const p = players.find(x => x.id === playerId);
+                if (p) p.rank = parseInt(newRank);
+                localStorage.setItem('players_1egit', JSON.stringify(players));
+                renderPlayers();
+            }
+        }
+
+        function deletePlayer(playerId) {
+            const p = players.find(x => x.id === playerId);
+            if (p && confirm(`Remove ${p.name}?`)) {
+                if (db) {
+                    db.ref('players/' + playerId).remove();
+                } else {
+                    players = players.filter(x => x.id !== playerId);
+                    localStorage.setItem('players_1egit', JSON.stringify(players));
+                    renderPlayers();
+                    renderBench();
+                }
+            }
+        }
+
+        function clearAllPlayers() {
+            if (players.length === 0) {
+                showError('No active players!');
+                return;
+            }
+            if (confirm('Clear all active players?')) {
+                if (db) {
+                    db.ref('players').remove();
+                } else {
+                    players = [];
+                    localStorage.setItem('players_1egit', JSON.stringify(players));
+                    renderPlayers();
+                    renderBench();
+                }
+                document.getElementById('results').classList.remove('active');
+                shuffleCount = 0;
+                currentTeams = [];
+            }
+        }
+
+        function updateBenchRank(benchId, newRank) {
+            if (db) {
+                db.ref('bench/' + benchId).update({rank: parseInt(newRank)});
+            } else {
+                const b = bench.find(x => x.id === benchId);
+                if (b) b.rank = parseInt(newRank);
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+                renderBench();
+            }
+        }
+
+        function removeFromBench(benchId) {
+            if (db) {
+                db.ref('bench/' + benchId).remove();
+            } else {
+                bench = bench.filter(x => x.id !== benchId);
+                localStorage.setItem('bench_1egit', JSON.stringify(bench));
+                renderBench();
+            }
+        }
+
         function renderPlayers() {
-            const c = document.getElementById('playersContainer');
+            const container = document.getElementById('playersContainer');
             document.getElementById('playerCount').textContent = players.length;
-            if (!players.length) { c.innerHTML = '<div class="empty-state">No active players</div>'; return; }
-            c.innerHTML = [...players].sort((a,b)=>b.rank-a.rank).map(p => {
-                const i = players.findIndex(x=>x.name===p.name);
-                return `<div class="player-card">
+
+            if (players.length === 0) {
+                container.innerHTML = '<div class="empty-state">No active players</div>';
+                return;
+            }
+
+            const sorted = [...players].sort((a, b) => b.rank - a.rank);
+            container.innerHTML = sorted.map(p => `
+                <div class="player-card">
                     <div class="player-info">
                         <span class="player-name">${p.name}</span>
                     </div>
                     <div class="player-actions">
                         <img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
-                        <select class="rank-select-inline" onchange="updatePlayerRank(${i},this.value)">${generateRankOptions(p.rank)}</select>
-                        <button class="btn-delete" onclick="deletePlayer(${i})">✕</button>
+                        <select class="rank-select-inline" onchange="updatePlayerRank('${p.id}', this.value)">
+                            ${generateRankOptions(p.rank)}
+                        </select>
+                        <button class="btn-delete" onclick="deletePlayer('${p.id}')">✕</button>
                     </div>
-                </div>`;
-            }).join('');
+                </div>
+            `).join('');
         }
+
         function renderBench() {
-            const c = document.getElementById('benchList');
-            if (!bench.length) { c.innerHTML = '<div class="empty-state">Bench is empty</div>'; document.getElementById('selectedCount').textContent = ''; return; }
-            c.innerHTML = [...bench].sort((a,b)=>a.name.localeCompare(b.name)).map(p => {
-                const i = bench.findIndex(x=>x.name===p.name);
-                const active = players.some(x=>x.name.toLowerCase()===p.name.toLowerCase());
-                return `<div class="bench-item"><input type="checkbox" class="bench-checkbox" data-index="${i}" onchange="updateSelectedCount()" ${active?'disabled':''}><div class="bench-item-info"><img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}"><span class="bench-item-name" ${active?'style="color:var(--discord-green);"':''}>${p.name}</span></div><div class="bench-item-actions"><select class="rank-select-inline" onchange="updateBenchRank(${i},this.value)" style="font-size:10px;padding:2px 4px;width:55px;">${generateRankOptions(p.rank)}</select><button class="btn-bench-remove" onclick="removeFromBench(${i})">✕</button></div></div>`;
+            const container = document.getElementById('benchList');
+
+            if (bench.length === 0) {
+                container.innerHTML = '<div class="empty-state">Bench is empty</div>';
+                document.getElementById('selectedCount').textContent = '';
+                return;
+            }
+
+            const sorted = [...bench].sort((a, b) => a.name.localeCompare(b.name));
+            container.innerHTML = sorted.map(p => {
+                const isActive = players.some(x => x.name.toLowerCase() === p.name.toLowerCase());
+                return `
+                    <div class="bench-item">
+                        <input type="checkbox" class="bench-checkbox" data-id="${p.id}" onchange="updateSelectedCount()" ${isActive ? 'disabled' : ''}>
+                        <div class="bench-item-info">
+                            <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                            <span class="bench-item-name" ${isActive ? 'style="color:var(--discord-green);"' : ''}>${p.name}</span>
+                        </div>
+                        <div class="bench-item-actions">
+                            <select class="rank-select-inline" onchange="updateBenchRank('${p.id}', this.value)" style="font-size:10px;padding:2px 4px;width:55px;">
+                                ${generateRankOptions(p.rank)}
+                            </select>
+                            <button class="btn-bench-remove" onclick="removeFromBench('${p.id}')">✕</button>
+                        </div>
+                    </div>
+                `;
             }).join('');
             updateSelectedCount();
         }
+
         function createTeams() {
-            document.getElementById('error').classList.remove('active');
-            if (!players.length) { showError('Add players first!'); return; }
-            const tc = parseInt(document.getElementById('teamCount').value);
-            if (tc < 2 || tc > players.length) { showError(`Teams: 2-${players.length}`); return; }
+            hideError();
+            if (players.length === 0) {
+                showError('Add players first!');
+                return;
+            }
+
+            const teamCount = parseInt(document.getElementById('teamCount').value);
+            if (teamCount < 2 || teamCount > players.length) {
+                showError(`Teams must be between 2 and ${players.length}`);
+                return;
+            }
+
             const ppt = parseInt(document.getElementById('playersPerTeam').value);
-            if (ppt > 0 && ppt * tc > players.length) { showError(`Need ${ppt*tc} players, have ${players.length}`); return; }
-            shuffleCount++; selectedForSwap = null;
-            currentTeams = balanceTeams(players, tc, ppt, shuffleCount);
+            if (ppt > 0 && ppt * teamCount > players.length) {
+                showError(`Need ${ppt * teamCount} players, have ${players.length}`);
+                return;
+            }
+
+            shuffleCount++;
+            selectedForSwap = null;
+            currentTeams = balanceTeams(players, teamCount, ppt, shuffleCount);
             displayTeams();
         }
-        function balanceTeams(list, tc, ppt, iter) {
-            let sorted = [...list].sort((a,b) => b.rank - a.rank);
-            const total = ppt > 0 ? ppt * tc : list.length;
-            let use = sorted.slice(0, total);
-            if (iter > 1) { for (let i = 0; i < use.length - 1; i++) { if (Math.abs(use[i].rank - use[i+1].rank) <= 2 && Math.random() < 0.4) { [use[i], use[i+1]] = [use[i+1], use[i]]; } } }
-            const teams = Array.from({length: tc}, () => ({players: [], totalPower: 0}));
-            use.forEach((p, idx) => { const round = Math.floor(idx / tc); const pos = idx % tc; const ti = round % 2 === 0 ? pos : tc - 1 - pos; teams[ti].players.push({...p}); teams[ti].totalPower += p.rank; });
+
+        function balanceTeams(playerList, teamCount, playersPerTeam, iteration) {
+            let sorted = [...playerList].sort((a, b) => b.rank - a.rank);
+            const total = playersPerTeam > 0 ? playersPerTeam * teamCount : playerList.length;
+            let toUse = sorted.slice(0, total);
+
+            // Shuffle similar ranks on subsequent presses
+            if (iteration > 1) {
+                for (let i = 0; i < toUse.length - 1; i++) {
+                    if (Math.abs(toUse[i].rank - toUse[i + 1].rank) <= 2 && Math.random() < 0.4) {
+                        [toUse[i], toUse[i + 1]] = [toUse[i + 1], toUse[i]];
+                    }
+                }
+            }
+
+            const teams = Array.from({length: teamCount}, () => ({players: [], totalPower: 0}));
+            toUse.forEach((player, index) => {
+                const round = Math.floor(index / teamCount);
+                const pos = index % teamCount;
+                const teamIdx = round % 2 === 0 ? pos : teamCount - 1 - pos;
+                teams[teamIdx].players.push({...player});
+                teams[teamIdx].totalPower += player.rank;
+            });
+
             return teams;
         }
-        function selectPlayerForSwap(ti, pi) {
-            if (!selectedForSwap) { selectedForSwap = {teamIndex: ti, playerIndex: pi}; displayTeams(); document.getElementById('swapInfo').textContent = `Selected: ${currentTeams[ti].players[pi].name} - Click another to swap`; document.getElementById('swapInfo').classList.add('active'); }
-            else {
-                if (selectedForSwap.teamIndex === ti && selectedForSwap.playerIndex === pi) { selectedForSwap = null; displayTeams(); document.getElementById('swapInfo').textContent = 'Click a player to select, then click another to swap'; document.getElementById('swapInfo').classList.remove('active'); return; }
-                const t1 = currentTeams[selectedForSwap.teamIndex], t2 = currentTeams[ti];
-                const p1 = t1.players[selectedForSwap.playerIndex], p2 = t2.players[pi];
-                t1.players[selectedForSwap.playerIndex] = p2; t2.players[pi] = p1;
-                t1.totalPower = t1.players.reduce((s,p) => s + p.rank, 0); t2.totalPower = t2.players.reduce((s,p) => s + p.rank, 0);
-                selectedForSwap = null; displayTeams(); document.getElementById('swapInfo').textContent = 'Swapped! Click to swap more'; document.getElementById('swapInfo').classList.remove('active');
+
+        function selectPlayerForSwap(teamIndex, playerIndex) {
+            if (selectedForSwap === null) {
+                selectedForSwap = {teamIndex, playerIndex};
+                displayTeams();
+                document.getElementById('swapInfo').textContent = `Selected: ${currentTeams[teamIndex].players[playerIndex].name} - Click another to swap`;
+                document.getElementById('swapInfo').classList.add('active');
+            } else {
+                if (selectedForSwap.teamIndex === teamIndex && selectedForSwap.playerIndex === playerIndex) {
+                    selectedForSwap = null;
+                    displayTeams();
+                    document.getElementById('swapInfo').textContent = 'Click a player to select, then click another to swap';
+                    document.getElementById('swapInfo').classList.remove('active');
+                    return;
+                }
+
+                // Perform swap
+                const t1 = currentTeams[selectedForSwap.teamIndex];
+                const t2 = currentTeams[teamIndex];
+                const p1 = t1.players[selectedForSwap.playerIndex];
+                const p2 = t2.players[playerIndex];
+
+                t1.players[selectedForSwap.playerIndex] = p2;
+                t2.players[playerIndex] = p1;
+
+                t1.totalPower = t1.players.reduce((sum, p) => sum + p.rank, 0);
+                t2.totalPower = t2.players.reduce((sum, p) => sum + p.rank, 0);
+
+                selectedForSwap = null;
+                displayTeams();
+                document.getElementById('swapInfo').textContent = 'Swapped! Click to swap more';
+                document.getElementById('swapInfo').classList.remove('active');
             }
         }
+
         function displayTeams() {
-            const c = document.getElementById('teamsContainer'); c.innerHTML = '';
-            const names = ['Terrorists', 'Counter-Terrorists'], classes = ['terrorists', 'counter-terrorists'];
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+
+            const names = ['Terrorists', 'Counter-Terrorists'];
+            const classes = ['terrorists', 'counter-terrorists'];
+
             currentTeams.forEach((team, ti) => {
-                const div = document.createElement('div'); div.className = `team ${classes[ti % 2]}`;
-                const avg = team.players.length ? Math.round(team.totalPower / team.players.length) : 0;
-                div.innerHTML = `<h2><span>${names[ti%2]} (${team.players.length})</span><span class="team-power">Avg: ${CS2_RANKS[avg]?.short || '-'}</span></h2><ul>${team.players.map((p,pi) => {
-                    const sel = selectedForSwap && selectedForSwap.teamIndex === ti && selectedForSwap.playerIndex === pi;
-                    return `<li class="${sel?'selected-for-swap':''}" onclick="selectPlayerForSwap(${ti},${pi})"><span class="player-number">${pi+1}</span><img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}"><span>${p.name}</span><span class="rank-badge" style="margin-left:auto;">${CS2_RANKS[p.rank].short}</span></li>`;
-                }).join('')}</ul>`;
-                c.appendChild(div);
+                const div = document.createElement('div');
+                div.className = `team ${classes[ti % 2]}`;
+
+                const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
+                const avgName = CS2_RANKS[avgRank] ? CS2_RANKS[avgRank].short : '-';
+
+                div.innerHTML = `
+                    <h2>
+                        <span>${names[ti % 2]} (${team.players.length})</span>
+                        <span class="team-power">Avg: ${avgName}</span>
+                    </h2>
+                    <ul>
+                        ${team.players.map((p, pi) => {
+                            const isSelected = selectedForSwap && selectedForSwap.teamIndex === ti && selectedForSwap.playerIndex === pi;
+                            return `
+                                <li class="${isSelected ? 'selected-for-swap' : ''}" onclick="selectPlayerForSwap(${ti}, ${pi})">
+                                    <span class="player-number">${pi + 1}</span>
+                                    <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
+                                    <span>${p.name}</span>
+                                    <span class="rank-badge" style="margin-left:auto;">${CS2_RANKS[p.rank].short}</span>
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                `;
+                container.appendChild(div);
             });
+
             document.getElementById('results').classList.add('active');
-            setTimeout(() => document.getElementById('results').scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+            }, 100);
         }
-        function showError(msg) { const e = document.getElementById('error'); e.textContent = '⚠️ ' + msg; e.classList.add('active'); }
+
+        function showError(msg) {
+            const err = document.getElementById('error');
+            err.textContent = '⚠️ ' + msg;
+            err.classList.add('active');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.remove('active');
+        }
+
         function copyResults() {
             let text = '🏆 1EGIT GAMING - BALANCED TEAMS 🏆\n\n';
             const names = ['Terrorists', 'Counter-Terrorists'];
+
             currentTeams.forEach((team, i) => {
-                const avg = team.players.length ? Math.round(team.totalPower / team.players.length) : 0;
-                text += `${names[i%2]} (${team.players.length}) - Avg: ${CS2_RANKS[avg]?.short || '-'}\n`;
-                team.players.forEach((p, j) => text += `  ${j+1}. ${p.name} [${CS2_RANKS[p.rank].short}]\n`);
+                const avgRank = team.players.length > 0 ? Math.round(team.totalPower / team.players.length) : 0;
+                text += `${names[i % 2]} (${team.players.length}) - Avg: ${CS2_RANKS[avgRank]?.short || '-'}\n`;
+                team.players.forEach((p, j) => {
+                    text += `  ${j + 1}. ${p.name} [${CS2_RANKS[p.rank].short}]\n`;
+                });
                 text += '\n';
             });
-            navigator.clipboard.writeText(text).then(() => { const btn = event.target; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy Results', 2000); });
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy Results', 2000);
+            });
         }
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('playerName').addEventListener('keypress', e => { if (e.key === 'Enter') addPlayer(); });
-            document.getElementById('benchName').addEventListener('keypress', e => { if (e.key === 'Enter') addToBench(); });
+
+        // Enter key handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('playerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addPlayer();
+            });
+            document.getElementById('benchName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addToBench();
+            });
         });
     </script>
 </body>
