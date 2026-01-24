@@ -397,21 +397,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <script>
-        // ==========================================================
-        // UPDATED: Centralized CS2 Rank Icons (PNG Format)
-        // Switch to PNG to prevent "Corrupted File" SVG issues locally
+// ==========================================================
+        //GITHUB REPOSUNDAKİ GÜNCEL İKONLAR
         // ==========================================================
         const RANK_ICONS = {};
         for (let i = 1; i <= 18; i++) {
-            // Using a reliable CDN that hosts web-ready PNGs for CS2 ranks
-            RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/DorCoMaNdO/CS2-Rank-Icons/png/skillgroup${i}.png`;
+            // Boşluk karakterini %20 olarak kodlayarak dosya yolunu oluşturuyoruz
+            RANK_ICONS[i] = `https://raw.githubusercontent.com/Oozanalp/Team-Creator/main/CS2%20Rank%20Icons/${i}.png`;
         }
 
         const CS2_RANKS = {
-            1: {name: 'Silver I', short: 'S1', group: 'Silver'},
-            2: {name: 'Silver II', short: 'S2', group: 'Silver'},
-            3: {name: 'Silver III', short: 'S3', group: 'Silver'},
-            4: {name: 'Silver IV', short: 'S4', group: 'Silver'},
+            1: {name: 'Silver I', short: 'SL1', group: 'Silver'},
+            2: {name: 'Silver II', short: 'SL2', group: 'Silver'},
+            3: {name: 'Silver III', short: 'SL3', group: 'Silver'},
+            4: {name: 'Silver IV', short: 'SL4', group: 'Silver'},
             5: {name: 'Silver Elite', short: 'SE', group: 'Silver'},
             6: {name: 'Silver Elite Master', short: 'SEM', group: 'Silver'},
             7: {name: 'Gold Nova I', short: 'GN1', group: 'Gold Nova'},
