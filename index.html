@@ -322,6 +322,23 @@
             .copy-btn { width: 100%; padding: 14px; }
             .bench-panel { padding: 14px; margin-bottom: 10px; }
             .rank-dropdown-menu { width: 200px; max-height: 350px; }
+            .bench-add-form {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .bench-add-form input {
+        flex: 1; /* Input'un kalan tüm alanı kaplamasını sağlar */
+        min-width: 0; /* Flexbox içinde taşmayı önler */
+    }
+
+    .bench-add-form .btn-add {
+        flex-shrink: 0; /* Butonun ezilmesini önler */
+        width: auto; /* Sabit genişlik yerine içeriğe göre genişlemesini sağlar */
+        min-width: 44px; /* Tıklama kolaylığı için minimum genişlik */
+        padding: 8px 12px;
+    }
         }
     </style>
 </head>
