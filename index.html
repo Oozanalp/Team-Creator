@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1EGIT Gaming - Team Creator</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script> 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script> 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -27,28 +25,28 @@
         }
         body {
             font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--discord-gray) !important;
+            background-color: var(--discord-gray);
             min-height: 100vh;
             padding: 20px;
             color: var(--discord-text);
         }
         .page-wrapper {
-            display: flex !important;
-            flex-direction: row !important;
+            display: flex;
+            flex-direction: row;
             gap: 20px;
             max-width: 1400px;
             margin: 0 auto;
             align-items: flex-start;
         }
         .main-container { flex: 1 1 auto; min-width: 0; max-width: calc(100% - 320px); }
-        .container { background: var(--discord-not-quite-black) !important; border-radius: 8px; padding: 32px; position: relative; }
+        .container { background: var(--discord-not-quite-black); border-radius: 8px; padding: 32px; position: relative; }
         .server-info { position: absolute; top: 16px; right: 16px; text-align: right; font-family: 'Consolas', monospace; }
         .server-info .connect { color: var(--discord-green); font-size: 13px; font-weight: 600; }
         .server-info .password { color: var(--discord-yellow); font-size: 12px; margin-top: 2px; }
         .header { text-align: center; margin-bottom: 24px; }
         .logo { width: 140px; height: auto; margin-bottom: 12px; }
         h1 { text-align: center; color: var(--discord-white); margin-bottom: 8px; font-size: 1.8em; font-weight: 600; }
-        .input-section { background: var(--discord-dark) !important; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .input-section { background: var(--discord-dark); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--discord-text-muted); font-size: 12px; text-transform: uppercase; }
         .add-player-form { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-end; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
@@ -58,42 +56,80 @@
         input[type="text"] { padding: 10px 12px; border: none; border-radius: 4px; font-size: 16px; background: var(--discord-darker); color: var(--discord-text); }
         input[type="text"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
         input[type="text"]::placeholder { color: var(--discord-text-faint); }
-        .rank-select-wrapper { display: flex; align-items: center; background: var(--discord-darker); border-radius: 4px; padding-left: 8px; }
-        .rank-select-wrapper .rank-icon { width: 32px; height: 32px; }
+        .rank-select-wrapper { display: flex; align-items: center; background: var(--discord-darker); border-radius: 4px; padding-left: 8px; height: 42px; }
+        .rank-select-wrapper .rank-icon { width: 28px; height: 28px; flex-shrink: 0; }
         .rank-select-wrapper select { flex: 1; padding: 10px 8px; border: none; background: transparent; color: var(--discord-text); cursor: pointer; font-size: 14px; }
         select { padding: 10px 12px; border: none; border-radius: 4px; font-size: 14px; background: var(--discord-darker); color: var(--discord-text); cursor: pointer; }
         select:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
-        .btn-add { padding: 10px 20px; background: var(--discord-blurple) !important; color: white !important; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; height: 42px; }
-        .btn-add:hover { background: var(--discord-blurple-hover) !important; }
+        .btn-add { padding: 10px 20px; background: var(--discord-blurple); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500; height: 42px; }
+        .btn-add:hover { background: var(--discord-blurple-hover); }
         .players-list { margin-top: 20px; margin-bottom: 16px; }
         .players-list h3 { color: var(--discord-white); margin-bottom: 12px; font-size: 1em; font-weight: 600; }
-        #playersContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; max-height: 350px; overflow-y: auto; padding: 8px; background: var(--discord-darker); border-radius: 4px; }
+        #playersContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; max-height: 350px; overflow-y: auto; padding: 8px; background: var(--discord-darker); border-radius: 4px; }
         #playersContainer::-webkit-scrollbar { width: 8px; }
         #playersContainer::-webkit-scrollbar-track { background: var(--discord-darker); }
         #playersContainer::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
-        .player-card { background: var(--discord-light-gray); padding: 10px 12px; border-radius: 4px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Player Card - Fixed Layout */
+        .player-card { 
+            background: var(--discord-light-gray); 
+            padding: 10px 12px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
         .player-card:hover { background: var(--discord-lighter-gray); }
-        .player-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-        .player-name { color: var(--discord-text); font-weight: 500; font-size: 14px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .player-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .rank-icon { width: 28px; height: 28px; }
-        .rank-icon-small { width: 22px; height: 22px; }
-        .rank-select-inline { padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-darker); color: var(--discord-text); cursor: pointer; }
+        
+        .player-name { 
+            flex: 1;
+            color: var(--discord-text); 
+            font-weight: 500; 
+            font-size: 14px; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap;
+            min-width: 0;
+        }
+        
+        .player-actions { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        
+        .rank-icon { width: 28px; height: 28px; flex-shrink: 0; }
+        .rank-icon-small { width: 22px; height: 22px; flex-shrink: 0; }
+        
+        .rank-select-inline { 
+            padding: 4px 6px; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            font-weight: 600; 
+            background: var(--discord-darker); 
+            color: var(--discord-text); 
+            cursor: pointer;
+            width: 60px;
+        }
         .rank-select-inline:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
+        
         .rank-badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--discord-lighter-gray); color: var(--discord-text); }
-        .btn-delete { background: transparent; border: none; color: var(--discord-red); cursor: pointer; font-size: 16px; padding: 4px; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .btn-delete { background: transparent; border: none; color: var(--discord-red); cursor: pointer; font-size: 18px; padding: 4px; width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-delete:hover { background: rgba(218, 55, 60, 0.1); }
-        .empty-state { text-align: center; padding: 32px; color: var(--discord-text-faint); font-size: 14px; }
+        .empty-state { text-align: center; padding: 32px; color: var(--discord-text-faint); font-size: 14px; grid-column: 1 / -1; }
         .settings { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
         .setting-group { flex: 1; min-width: 180px; }
         input[type="number"] { width: 100%; padding: 10px 12px; border: none; border-radius: 4px; font-size: 16px; background: var(--discord-darker); color: var(--discord-text); }
         input[type="number"]:focus { outline: none; box-shadow: 0 0 0 2px var(--discord-blurple); }
         .button-group { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
         button { flex: 1; padding: 12px 24px; font-size: 14px; font-weight: 500; border: none; border-radius: 4px; cursor: pointer; min-width: 140px; }
-        .btn-primary { background: var(--discord-blurple) !important; color: white !important; }
-        .btn-primary:hover { background: var(--discord-blurple-hover) !important; }
-        .btn-secondary { background: transparent !important; color: var(--discord-red) !important; border: 1px solid var(--discord-red) !important; }
-        .btn-secondary:hover { background: rgba(218, 55, 60, 0.1) !important; }
+        .btn-primary { background: var(--discord-blurple); color: white; }
+        .btn-primary:hover { background: var(--discord-blurple-hover); }
+        .btn-secondary { background: transparent; color: var(--discord-red); border: 1px solid var(--discord-red); }
+        .btn-secondary:hover { background: rgba(218, 55, 60, 0.1); }
         .results { margin-top: 24px; display: none; }
         .results.active { display: block; }
         .results > h2 { color: var(--discord-white); margin-bottom: 16px; font-size: 1.1em; font-weight: 600; }
@@ -110,15 +146,15 @@
         .team li:hover { background: var(--discord-light-gray); }
         .team li.selected-for-swap { background: var(--discord-blurple); box-shadow: 0 0 0 2px var(--discord-white); }
         .team li:last-child { margin-bottom: 0; }
-        .player-number { color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; }
+        .player-number { color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
         .team.terrorists .player-number { background: var(--discord-yellow); color: var(--discord-darker); }
         .team.counter-terrorists .player-number { background: var(--discord-blurple); }
         .swap-info { text-align: center; padding: 12px; background: var(--discord-darker); border-radius: 4px; margin-bottom: 16px; color: var(--discord-text-muted); font-size: 13px; }
         .swap-info.active { background: var(--discord-blurple); color: white; }
         .error { background: rgba(218, 55, 60, 0.1); border-left: 4px solid var(--discord-red); padding: 12px 16px; margin-top: 12px; border-radius: 4px; color: var(--discord-red); font-size: 14px; display: none; }
         .error.active { display: block; }
-        .copy-btn { background: var(--discord-blurple) !important; color: white !important; padding: 10px 16px; margin-top: 12px; font-size: 14px; font-weight: 500; }
-        .copy-btn:hover { background: var(--discord-blurple-hover) !important; }
+        .copy-btn { background: var(--discord-blurple); color: white; padding: 10px 16px; margin-top: 12px; font-size: 14px; font-weight: 500; }
+        .copy-btn:hover { background: var(--discord-blurple-hover); }
         .bench-panel { width: 300px; flex-shrink: 0; background: var(--discord-not-quite-black); border-radius: 8px; padding: 16px; position: sticky; top: 20px; max-height: calc(100vh - 40px); display: flex; flex-direction: column; }
         .bench-panel h3 { color: var(--discord-white); margin-bottom: 16px; font-size: 1em; font-weight: 600; }
         .bench-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -126,7 +162,7 @@
         .bench-add-form button { padding: 8px 12px; min-width: auto; flex: none; }
         .bench-actions { display: flex; gap: 8px; margin-bottom: 12px; }
         .bench-actions button { flex: 1; padding: 8px 12px; font-size: 12px; min-width: auto; }
-        .btn-green { background: var(--discord-green) !important; color: white !important; border: none !important; }
+        .btn-green { background: var(--discord-green); color: white; border: none; }
         .btn-green:hover { filter: brightness(0.9); }
         .bench-list { flex: 1; overflow-y: auto; min-height: 200px; }
         .bench-list::-webkit-scrollbar { width: 6px; }
@@ -134,7 +170,7 @@
         .bench-list::-webkit-scrollbar-thumb { background: var(--discord-lighter-gray); border-radius: 4px; }
         .bench-item { display: flex; align-items: center; padding: 6px 10px; background: var(--discord-dark); border-radius: 4px; margin-bottom: 4px; gap: 8px; }
         .bench-item:hover { background: var(--discord-light-gray); }
-        .bench-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--discord-blurple); }
+        .bench-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--discord-blurple); flex-shrink: 0; }
         .bench-item-info { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
         .bench-item-name { color: var(--discord-text); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .bench-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
@@ -142,6 +178,51 @@
         .btn-bench-remove:hover { background: rgba(218, 55, 60, 0.1); }
         .shuffle-info { font-size: 11px; color: var(--discord-text-faint); margin-top: 8px; font-style: italic; }
         .selected-count { font-size: 12px; color: var(--discord-green); margin-bottom: 8px; }
+        
+        /* Custom Rank Dropdown */
+        .rank-dropdown-container { position: relative; }
+        .rank-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: var(--discord-darker);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--discord-text);
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 80px;
+        }
+        .rank-dropdown-btn:hover { background: var(--discord-lighter-gray); }
+        .rank-dropdown-btn img { width: 20px; height: 20px; }
+        .rank-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--discord-dark);
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            min-width: 180px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .rank-dropdown-menu.open { display: block; }
+        .rank-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--discord-text);
+            font-size: 13px;
+        }
+        .rank-dropdown-item:hover { background: var(--discord-lighter-gray); }
+        .rank-dropdown-item img { width: 24px; height: 24px; }
+        .rank-dropdown-item.selected { background: var(--discord-blurple); }
         
         @media (max-width: 900px) {
             .page-wrapper { flex-direction: column; }
@@ -155,55 +236,19 @@
             h1 { font-size: 1.4em; }
             .logo { width: 100px; }
             .server-info { position: static; text-align: center; margin-bottom: 16px; }
-            .server-info .connect { font-size: 12px; }
-            .server-info .password { font-size: 11px; }
             .input-section { padding: 14px; }
             .add-player-form { flex-direction: column; gap: 10px; }
             .form-group.name-group, .form-group.rank-group { min-width: 100%; }
             .btn-add { width: 100%; height: 44px; }
-            #playersContainer { grid-template-columns: 1fr; max-height: 280px; padding: 6px; gap: 6px; }
+            #playersContainer { grid-template-columns: 1fr; max-height: 280px; }
             .player-card { padding: 10px; }
-            .player-name { font-size: 13px; }
-            .rank-icon { width: 24px; height: 24px; }
-            .rank-select-inline { font-size: 10px; padding: 4px 6px; }
-            .btn-delete { width: 32px; height: 32px; font-size: 18px; }
             .settings { flex-direction: column; gap: 12px; }
-            .setting-group { min-width: 100%; }
             .button-group { flex-direction: column; gap: 10px; }
-            button { width: 100%; padding: 14px; font-size: 14px; min-width: auto; }
-            .shuffle-info { font-size: 10px; text-align: center; }
-            .teams-wrapper { flex-direction: column; gap: 12px; }
-            .team { min-width: 100%; padding: 12px; }
-            .team h2 { font-size: 0.9em; flex-wrap: wrap; }
-            .team li { padding: 8px 10px; gap: 8px; font-size: 13px; }
-            .player-number { width: 22px; height: 22px; font-size: 11px; }
-            .rank-icon-small { width: 20px; height: 20px; }
-            .rank-badge { padding: 3px 8px; font-size: 10px; }
-            .swap-info { font-size: 12px; padding: 10px; }
+            button { width: 100%; padding: 14px; min-width: auto; }
+            .teams-wrapper { flex-direction: column; }
+            .team { min-width: 100%; }
             .copy-btn { width: 100%; padding: 14px; }
             .bench-panel { padding: 14px; margin-bottom: 10px; }
-            .bench-panel h3 { font-size: 0.95em; margin-bottom: 12px; }
-            .bench-add-form { gap: 6px; }
-            .bench-add-form input { padding: 10px; font-size: 14px; }
-            .bench-add-form button { padding: 10px 14px; height: auto; }
-            .bench-actions { gap: 6px; }
-            .bench-actions button { padding: 10px; font-size: 11px; }
-            .bench-list { max-height: 200px; }
-            .bench-item { padding: 8px; gap: 6px; }
-            .bench-item-name { font-size: 12px; }
-            .bench-checkbox { width: 20px; height: 20px; }
-            .error { font-size: 13px; padding: 10px 12px; }
-        }
-        @media (max-width: 400px) {
-            body { padding: 6px; }
-            .container { padding: 12px; }
-            h1 { font-size: 1.2em; }
-            .logo { width: 80px; }
-            .input-section { padding: 12px; }
-            label { font-size: 11px; }
-            .player-name { font-size: 12px; }
-            .rank-icon { width: 22px; height: 22px; }
-            .team li { padding: 6px 8px; }
         }
     </style>
 </head>
@@ -227,9 +272,9 @@
                             <input type="text" id="playerName" placeholder="Player name...">
                         </div>
                         <div class="form-group rank-group">
-                            <label for="playerRank">CS2 Rank</label>
+                            <label>CS2 Rank</label>
                             <div class="rank-select-wrapper">
-                                <img id="selectedRankIcon" class="rank-icon" src="https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/9.png" alt="Rank">
+                                <img id="selectedRankIcon" class="rank-icon" src="" alt="Rank">
                                 <select id="playerRank" onchange="updateRankIcon()"></select>
                             </div>
                         </div>
@@ -266,7 +311,13 @@
             <div class="bench-list" id="benchList"></div>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <script>
+        // Rank Icons CDN
         const RANK_ICONS = {};
         for (let i = 1; i <= 18; i++) {
             RANK_ICONS[i] = `https://cdn.jsdelivr.net/gh/ItzArty/csgo-rank-icons@main/ranks/${i}.png`;
@@ -309,27 +360,44 @@
         let currentTeams = [];
         let shuffleCount = 0;
         let selectedForSwap = null;
+        let openDropdown = null;
 
-        // Initialize Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            console.log('Firebase connected');
-        } catch (e) {
-            console.error('Firebase error:', e);
-        }
-
+        // Initialize when page loads
         window.onload = function() {
+            // Initialize Firebase
+            if (typeof firebase !== 'undefined') {
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.database();
+                    console.log('Firebase connected successfully');
+                } catch (e) {
+                    console.error('Firebase init error:', e);
+                }
+            } else {
+                console.log('Firebase SDK not loaded, using localStorage');
+            }
+
             initRankDropdowns();
             loadData();
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.rank-dropdown-container')) {
+                    closeAllDropdowns();
+                }
+            });
+
+            // Enter key handlers
+            document.getElementById('playerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addPlayer();
+            });
+            document.getElementById('benchName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addToBench();
+            });
         };
 
         function initRankDropdowns() {
             const mainSelect = document.getElementById('playerRank');
-            mainSelect.innerHTML = generateRankOptionsWithIcons(9);
-        }
-
-        function generateRankOptionsWithIcons(selected) {
             const groups = [
                 {label: 'Silver', ranks: [1,2,3,4,5,6]},
                 {label: 'Gold Nova', ranks: [7,8,9,10]},
@@ -337,17 +405,13 @@
                 {label: 'Elite', ranks: [15,16,17,18]}
             ];
             
-            return groups.map(g => 
+            mainSelect.innerHTML = groups.map(g => 
                 `<optgroup label="${g.label}">${g.ranks.map(r => 
-                    `<option value="${r}" ${r === selected ? 'selected' : ''}>${CS2_RANKS[r].name}</option>`
+                    `<option value="${r}" ${r === 9 ? 'selected' : ''}>${CS2_RANKS[r].name}</option>`
                 ).join('')}</optgroup>`
             ).join('');
-        }
 
-        function generateRankOptions(selected) {
-            return Array.from({length: 18}, (_, i) => i + 1)
-                .map(i => `<option value="${i}" ${i === selected ? 'selected' : ''}>${CS2_RANKS[i].short}</option>`)
-                .join('');
+            document.getElementById('selectedRankIcon').src = RANK_ICONS[9];
         }
 
         function updateRankIcon() {
@@ -357,17 +421,15 @@
 
         function loadData() {
             if (db) {
-                // Listen for players
                 db.ref('players').on('value', snapshot => {
                     players = [];
                     snapshot.forEach(child => {
                         players.push({id: child.key, ...child.val()});
                     });
                     renderPlayers();
-                    renderBench(); // Update bench to show active status
+                    renderBench();
                 });
 
-                // Listen for bench
                 db.ref('bench').on('value', snapshot => {
                     bench = [];
                     snapshot.forEach(child => {
@@ -394,19 +456,15 @@
                 return;
             }
 
-            // Check if already exists
-            const exists = players.some(p => p.name.toLowerCase() === name.toLowerCase());
-            if (exists) {
+            if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
                 showError('Player already active!');
                 return;
             }
 
             if (db) {
-                // Use push() to generate unique key
-                const newRef = db.ref('players').push();
-                newRef.set({name: name, rank: rank});
+                db.ref('players').push().set({name: name, rank: rank});
             } else {
-                players.push({name, rank, id: Date.now().toString()});
+                players.push({name, rank, id: 'local_' + Date.now()});
                 localStorage.setItem('players_1egit', JSON.stringify(players));
                 renderPlayers();
             }
@@ -424,45 +482,20 @@
 
             if (!name) return;
 
-            const exists = bench.some(b => b.name.toLowerCase() === name.toLowerCase());
-            if (exists) {
+            if (bench.some(b => b.name.toLowerCase() === name.toLowerCase())) {
                 showError('Already on bench!');
                 return;
             }
 
             if (db) {
-                // Use push() to generate unique key
-                const newRef = db.ref('bench').push();
-                newRef.set({name: name, rank: 9});
+                db.ref('bench').push().set({name: name, rank: 9});
             } else {
-                bench.push({name, rank: 9, id: Date.now().toString()});
+                bench.push({name, rank: 9, id: 'local_' + Date.now()});
                 localStorage.setItem('bench_1egit', JSON.stringify(bench));
                 renderBench();
             }
 
             nameInput.value = '';
-            hideError();
-        }
-
-        function addFromBench(benchId) {
-            const bp = bench.find(b => b.id === benchId);
-            if (!bp) return;
-
-            const exists = players.some(p => p.name.toLowerCase() === bp.name.toLowerCase());
-            if (exists) {
-                showError('Player already active!');
-                return;
-            }
-
-            if (db) {
-                const newRef = db.ref('players').push();
-                newRef.set({name: bp.name, rank: bp.rank});
-            } else {
-                players.push({name: bp.name, rank: bp.rank, id: Date.now().toString()});
-                localStorage.setItem('players_1egit', JSON.stringify(players));
-                renderPlayers();
-                renderBench();
-            }
             hideError();
         }
 
@@ -478,10 +511,9 @@
                 const bp = bench.find(b => b.id === benchId);
                 if (bp && !players.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
                     if (db) {
-                        const newRef = db.ref('players').push();
-                        newRef.set({name: bp.name, rank: bp.rank});
+                        db.ref('players').push().set({name: bp.name, rank: bp.rank});
                     } else {
-                        players.push({name: bp.name, rank: bp.rank, id: Date.now().toString()});
+                        players.push({name: bp.name, rank: bp.rank, id: 'local_' + Date.now() + Math.random()});
                     }
                 }
             });
@@ -504,6 +536,32 @@
         function updateSelectedCount() {
             const count = document.querySelectorAll('.bench-checkbox:checked').length;
             document.getElementById('selectedCount').textContent = count > 0 ? `${count} selected` : '';
+        }
+
+        function toggleRankDropdown(playerId, event) {
+            event.stopPropagation();
+            const menu = document.getElementById('rank-menu-' + playerId);
+            
+            if (openDropdown && openDropdown !== menu) {
+                openDropdown.classList.remove('open');
+            }
+            
+            menu.classList.toggle('open');
+            openDropdown = menu.classList.contains('open') ? menu : null;
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.rank-dropdown-menu').forEach(m => m.classList.remove('open'));
+            openDropdown = null;
+        }
+
+        function selectRank(playerId, newRank, type) {
+            closeAllDropdowns();
+            if (type === 'player') {
+                updatePlayerRank(playerId, newRank);
+            } else {
+                updateBenchRank(playerId, newRank);
+            }
         }
 
         function updatePlayerRank(playerId, newRank) {
@@ -572,26 +630,48 @@
             }
         }
 
+        function createRankDropdown(id, currentRank, type) {
+            const rankData = CS2_RANKS[currentRank];
+            let menuItems = '';
+            for (let i = 1; i <= 18; i++) {
+                const r = CS2_RANKS[i];
+                menuItems += `
+                    <div class="rank-dropdown-item ${i === currentRank ? 'selected' : ''}" onclick="selectRank('${id}', ${i}, '${type}')">
+                        <img src="${RANK_ICONS[i]}" alt="${r.name}">
+                        <span>${r.short} - ${r.name}</span>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="rank-dropdown-container">
+                    <button class="rank-dropdown-btn" onclick="toggleRankDropdown('${id}', event)">
+                        <img src="${RANK_ICONS[currentRank]}" alt="${rankData.name}">
+                        <span>${rankData.short}</span>
+                    </button>
+                    <div class="rank-dropdown-menu" id="rank-menu-${id}">
+                        ${menuItems}
+                    </div>
+                </div>
+            `;
+        }
+
         function renderPlayers() {
             const container = document.getElementById('playersContainer');
             document.getElementById('playerCount').textContent = players.length;
 
             if (players.length === 0) {
-                container.innerHTML = '<div class="empty-state">No active players</div>';
+                container.innerHTML = '<div class="empty-state">No active players. Add from bench or manually.</div>';
                 return;
             }
 
             const sorted = [...players].sort((a, b) => b.rank - a.rank);
             container.innerHTML = sorted.map(p => `
                 <div class="player-card">
-                    <div class="player-info">
-                        <span class="player-name">${p.name}</span>
-                    </div>
+                    <span class="player-name">${p.name}</span>
                     <div class="player-actions">
                         <img src="${RANK_ICONS[p.rank]}" class="rank-icon" alt="${CS2_RANKS[p.rank].name}">
-                        <select class="rank-select-inline" onchange="updatePlayerRank('${p.id}', this.value)">
-                            ${generateRankOptions(p.rank)}
-                        </select>
+                        ${createRankDropdown(p.id, p.rank, 'player')}
                         <button class="btn-delete" onclick="deletePlayer('${p.id}')">✕</button>
                     </div>
                 </div>
@@ -618,9 +698,7 @@
                             <span class="bench-item-name" ${isActive ? 'style="color:var(--discord-green);"' : ''}>${p.name}</span>
                         </div>
                         <div class="bench-item-actions">
-                            <select class="rank-select-inline" onchange="updateBenchRank('${p.id}', this.value)" style="font-size:10px;padding:2px 4px;width:55px;">
-                                ${generateRankOptions(p.rank)}
-                            </select>
+                            ${createRankDropdown(p.id, p.rank, 'bench')}
                             <button class="btn-bench-remove" onclick="removeFromBench('${p.id}')">✕</button>
                         </div>
                     </div>
@@ -659,7 +737,6 @@
             const total = playersPerTeam > 0 ? playersPerTeam * teamCount : playerList.length;
             let toUse = sorted.slice(0, total);
 
-            // Shuffle similar ranks on subsequent presses
             if (iteration > 1) {
                 for (let i = 0; i < toUse.length - 1; i++) {
                     if (Math.abs(toUse[i].rank - toUse[i + 1].rank) <= 2 && Math.random() < 0.4) {
@@ -695,7 +772,6 @@
                     return;
                 }
 
-                // Perform swap
                 const t1 = currentTeams[selectedForSwap.teamIndex];
                 const t2 = currentTeams[teamIndex];
                 const p1 = t1.players[selectedForSwap.playerIndex];
@@ -740,8 +816,8 @@
                                 <li class="${isSelected ? 'selected-for-swap' : ''}" onclick="selectPlayerForSwap(${ti}, ${pi})">
                                     <span class="player-number">${pi + 1}</span>
                                     <img src="${RANK_ICONS[p.rank]}" class="rank-icon-small" alt="${CS2_RANKS[p.rank].name}">
-                                    <span>${p.name}</span>
-                                    <span class="rank-badge" style="margin-left:auto;">${CS2_RANKS[p.rank].short}</span>
+                                    <span style="flex:1;">${p.name}</span>
+                                    <span class="rank-badge">${CS2_RANKS[p.rank].short}</span>
                                 </li>
                             `;
                         }).join('')}
@@ -785,16 +861,6 @@
                 setTimeout(() => btn.textContent = '📋 Copy Results', 2000);
             });
         }
-
-        // Enter key handlers
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('playerName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') addPlayer();
-            });
-            document.getElementById('benchName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') addToBench();
-            });
-        });
     </script>
 </body>
 </html>
